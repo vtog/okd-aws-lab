@@ -72,7 +72,7 @@ resource "aws_instance" "svc" {
   }
 
   tags = {
-    Name = "svc"
+    Name = "okd4-services"
     Lab  = "Containers"
   }
 }

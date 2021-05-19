@@ -1,5 +1,9 @@
 ---
 
+- name: Update VM hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
 - name: Fix dpkg
   shell: "dpkg --configure -a"
 

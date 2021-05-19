@@ -149,7 +149,6 @@ resource "local_file" "save_inventory" {
   filename   = "./openshift/ansible/inventory.ini"
 }
 
-
 #----- Run Ansible Playbook -----
 #resource "null_resource" "ansible" {
 #  provisioner "local-exec" {
