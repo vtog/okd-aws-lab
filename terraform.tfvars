@@ -3,7 +3,8 @@ aws_region  = "us-west-2"
 vpc_cidr    = "10.1.0.0/16"
 
 cidrs = {
-  mgmt1      = "10.1.1.0/24"
+  mgmt      = "10.1.1.0/24"
+  okd       = "10.1.20.0/24"
 }
 
 key_name            = "container-lab-key"
