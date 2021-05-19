@@ -13,8 +13,8 @@ data "aws_ami" "ubuntu_ami" {
   }
 }
 
-resource "aws_security_group" "svc_sg" {
-  name   = "svc_sg"
+resource "aws_security_group" "svc_mgmt_sg" {
+  name   = "svc_mgmt_sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -53,7 +53,7 @@ resource "aws_security_group" "svc_sg" {
   }
 
   tags = {
-    Name = "svc_sg"
+    Name = "svc_mgmt_sg"
     Lab  = "Containers"
   }
 }
@@ -63,7 +63,7 @@ resource "aws_instance" "svc" {
   instance_type          = "m5.large"
   count                  = 1
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.svc_sg.id]
+  vpc_security_group_ids = [aws_security_group.svc_mgmt_sg.id]
   subnet_id              = var.vpc_subnet[0]
 
   root_block_device {
@@ -72,12 +72,12 @@ resource "aws_instance" "svc" {
   }
 
   tags = {
-    Name = "services"
+    Name = "svc"
     Lab  = "Containers"
   }
 }
 
-# write out servicesinventory
+# write out services inventory
 data "template_file" "inventory" {
   template = <<EOF
 [all]

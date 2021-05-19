@@ -89,14 +89,14 @@ resource "aws_key_pair" "lab_auth" {
 #----- Deploy Services -----
 
 module "svc" {
-  source        = "./svc"
-  aws_region    = var.aws_region
-  aws_profile   = var.aws_profile
-  myIP          = "${chomp(data.http.myIP.body)}/32"
-  key_name      = var.key_name
-  vpc_id        = aws_vpc.lab_vpc.id
-  vpc_cidr      = var.vpc_cidr
-  vpc_subnet    = [aws_subnet.mgmt_subnet.id]
+  source      = "./svc"
+  aws_region  = var.aws_region
+  aws_profile = var.aws_profile
+  myIP        = "${chomp(data.http.myIP.body)}/32"
+  key_name    = var.key_name
+  vpc_id      = aws_vpc.lab_vpc.id
+  vpc_cidr    = var.vpc_cidr
+  vpc_subnet  = [aws_subnet.mgmt_subnet.id]
 }
 
 #----- Deploy OpenShift -----
@@ -112,5 +112,6 @@ module "okd" {
   okd_node_count   = var.okd_node_count
   vpc_id           = aws_vpc.lab_vpc.id
   vpc_cidr         = var.vpc_cidr
-  vpc_subnet       = [aws_subnet.okd_subnet.id]
+  vpc_subnet       = [aws_subnet.mgmt_subnet.id]
 }
+

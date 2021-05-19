@@ -171,3 +171,4 @@ output "public_ip" {
   aws_instance.okd-master.*.public_ip
   )
 }
+
