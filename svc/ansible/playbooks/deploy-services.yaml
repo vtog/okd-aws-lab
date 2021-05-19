@@ -1,0 +1,9 @@
+---
+
+- name: Prep Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+  - import_tasks: update-ubuntu.yaml
+  - import_tasks: install-services.yaml
+

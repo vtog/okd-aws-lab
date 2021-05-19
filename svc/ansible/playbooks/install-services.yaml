@@ -1,0 +1,20 @@
+---
+
+- name: Install various support packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  vars:
+    packages:
+    - vim
+    - ntp
+    - make
+    - python3
+    - git
+    - curl
+    - tcpdump
+    - nginx
+    - bind9
+    - bind9utils
+
