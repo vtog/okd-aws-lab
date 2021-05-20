@@ -140,7 +140,7 @@ ${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.p
 %{ endfor ~}
 
 [all:vars]
-ansible_user=centos
+ansible_user=core
 ansible_playbook_python=/usr/bin/python3
 
 EOF
@@ -153,16 +153,16 @@ resource "local_file" "save_inventory" {
 }
 
 #----- Run Ansible Playbook -----
-#resource "null_resource" "ansible" {
-#  provisioner "local-exec" {
-#    working_dir = "./okd/ansible/"
-#
-#    command = <<EOF
-#    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.okd-master.*.id)}
-#    ansible-playbook ./playbooks/deploy-okd.yaml
-#    EOF
-#  }
-#}
+resource "null_resource" "ansible" {
+  provisioner "local-exec" {
+    working_dir = "./okd/ansible/"
+
+    command = <<EOF
+    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.okd-master.*.id)}
+    ansible-playbook ./playbooks/prep-fcos.yaml
+    EOF
+  }
+}
 
 #-------- okd output --------
 
