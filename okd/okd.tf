@@ -91,7 +91,7 @@ resource "aws_instance" "okd-master" {
   }
 
   tags = {
-    Name = "okd-master${count.index}"
+    Name = "okd-master-${count.index + 1}"
     Lab  = "Containers"
   }
 }
@@ -110,7 +110,7 @@ resource "aws_instance" "okd-worker" {
   }
 
   tags = {
-    Name = "okd-worker${count.index}"
+    Name = "okd-worker-${count.index + 1}"
     Lab  = "Containers"
   }
 }
@@ -119,6 +119,9 @@ resource "aws_instance" "okd-worker" {
 data "template_file" "inventory" {
   template = <<EOF
 [all]
+%{ for instance in aws_instance.okd-bootstrap ~}
+${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
+%{ endfor ~}
 %{ for instance in aws_instance.okd-master ~}
 ${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
 %{ endfor ~}
@@ -128,12 +131,12 @@ ${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.p
 
 [masters]
 %{ for instance in aws_instance.okd-master ~}
-%{ if substr(instance.tags.Name, 4, 6) == "master" }${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}%{ endif }
+${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
 %{ endfor ~}
 
 [nodes]
 %{ for instance in aws_instance.okd-worker ~}
-%{ if substr(instance.tags.Name, 4, 4) == "node" }${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}%{ endif }
+${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
 %{ endfor ~}
 
 [all:vars]
@@ -146,13 +149,13 @@ EOF
 resource "local_file" "save_inventory" {
   depends_on = [data.template_file.inventory]
   content    = data.template_file.inventory.rendered
-  filename   = "./openshift/ansible/inventory.ini"
+  filename   = "./okd/ansible/inventory.ini"
 }
 
 #----- Run Ansible Playbook -----
 #resource "null_resource" "ansible" {
 #  provisioner "local-exec" {
-#    working_dir = "./openshift/ansible/"
+#    working_dir = "./okd/ansible/"
 #
 #    command = <<EOF
 #    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.okd-master.*.id)}
@@ -163,11 +166,19 @@ resource "local_file" "save_inventory" {
 
 #-------- okd output --------
 
-output "public_ip" {
+output "master-public_ip" {
   value = formatlist(
   "%s = %s",
   aws_instance.okd-master.*.tags.Name,
   aws_instance.okd-master.*.public_ip
+  )
+}
+
+output "worker-public_ip" {
+  value = formatlist(
+  "%s = %s",
+  aws_instance.okd-worker.*.tags.Name,
+  aws_instance.okd-worker.*.public_ip
   )
 }
 
