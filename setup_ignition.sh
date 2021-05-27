@@ -1,10 +1,15 @@
 #!/bin/bash
 
-mkdir -p ./install
+if [[ -d ./install ]]; then
+  rm -rf ./install/
+  mkdir -p ./install
+else
+  mkdir -p ./install
+fi
 
-printf '  ' >> install-config.yaml && cat ~/.ssh/id_rsa.pub >> install-config.yaml
+cp  ./okd/install/install-config.yaml ./install/install-config.yaml
 
-cp ./install-config.yaml ./install
+printf '  ' >> ./install/install-config.yaml && cat ~/.ssh/id_rsa.pub >> ./install/install-config.yaml
 
 ./openshift-install create install-config --dir=install
 
