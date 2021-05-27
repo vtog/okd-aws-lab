@@ -121,13 +121,23 @@ resource "aws_route_table_association" "private1_assoc" {
   route_table_id = aws_route_table.lab_private_rt.id
 }
 
+data "aws_route_tables" "lab_rts" {
+    vpc_id = aws_vpc.lab_vpc.id
+}
 
+# Endpoints
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.lab_vpc.id
+  service_name = "com.amazonaws.${var.aws_region}.s3"
+  #route_table_ids = data.aws_route_tables.lab_rts.ids
+  route_table_ids = [ "${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}" ]
 
-
-
-
-
+  tags = {
+    Name = "${data.external.okd_name.result["name"]}_s3endpoint"
+    Lab  = "okd4"
+  }
+}
 
 
 
