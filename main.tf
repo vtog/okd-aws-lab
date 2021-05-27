@@ -11,7 +11,7 @@ resource "aws_vpc" "lab_vpc" {
   enable_dns_support   = true
 
   tags = {
-    Name = "lab_vpc"
+    Name = "${data.external.okd_name.result["name"]}_vpc"
     Lab  = "okd4"
   }
 }
@@ -106,7 +106,7 @@ resource "aws_route_table" "lab_private_rt" {
   }
 
   tags = {
-    Name = "lab_public"
+    Name = "${data.external.okd_name.result["name"]}_private"
     Lab  = "okd4"
   }
 }

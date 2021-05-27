@@ -18,6 +18,10 @@ data "http" "myIP" {
   url = "http://ipv4.icanhazip.com"
 }
 
+data "external" "okd_name" {
+  program = ["bash", "get_okd_name.sh"]
+}
+
 variable "key_name" {
 }
 
