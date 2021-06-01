@@ -25,7 +25,7 @@ resource "aws_subnet" "public1_subnet" {
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "public1"
+    Name = "${data.external.okd_name.result["name"]}_public1"
     Lab  = "okd4"
   }
 }
@@ -37,7 +37,7 @@ resource "aws_subnet" "private1_subnet" {
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "private1"
+    Name = "${data.external.okd_name.result["name"]}_private1"
     Lab  = "okd4"
   }
 }
@@ -48,7 +48,7 @@ resource "aws_eip" "nat_eip" {
   vpc = true
   
   tags = {
-    Name = "nat_eip"
+    Name = "${data.external.okd_name.result["name"]}_nat_eip"
     Lab  = "okd4"
   }
 }
@@ -59,7 +59,7 @@ resource "aws_internet_gateway" "lab_internet_gw" {
   vpc_id = aws_vpc.lab_vpc.id
 
   tags = {
-    Name = "lab_igw"
+    Name = "${data.external.okd_name.result["name"]}_igw"
     Lab  = "okd4"
   }
 }
@@ -76,7 +76,7 @@ resource "aws_nat_gateway" "lab_nat_gw" {
     ]
 
     tags = {
-        Name = "lab_nat"
+        Name = "${data.external.okd_name.result["name"]}_nat"
         Lab  = "okd4"
     }
 }
@@ -92,7 +92,7 @@ resource "aws_route_table" "lab_public_rt" {
   }
 
   tags = {
-    Name = "lab_public"
+    Name = "${data.external.okd_name.result["name"]}_public"
     Lab  = "okd4"
   }
 }
@@ -139,13 +139,93 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
+# Network load balancers
 
+resource "aws_lb" "ext_lb" {
+  name               = "${data.external.okd_name.result["name"]}-extlb"
+  internal           = false
+  load_balancer_type = "network"
+  subnets            = aws_subnet.public1_subnet.*.id
 
+  enable_deletion_protection = false
 
+  tags = {
+    Lab  = "okd4"
+  }
+}
 
+resource "aws_lb" "int_lb" {
+  name               = "${data.external.okd_name.result["name"]}-intlb"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = aws_subnet.private1_subnet.*.id
 
+  enable_deletion_protection = false
 
+  tags = {
+    Lab  = "okd4"
+  }
+}
 
+# Route53
+
+resource "aws_route53_zone" "private_zone" {
+  name = "${data.external.okd_name.result["name"]}.${var.domain}"
+
+  vpc {
+    vpc_id = aws_vpc.lab_vpc.id
+  }
+
+  tags = {
+    Lab  = "okd4"
+  }
+}
+
+data "aws_route53_zone" "private" {
+    name = "${data.external.okd_name.result["name"]}.${var.domain}"
+    private_zone = true
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = "api.${data.aws_route53_zone.private.name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.int_lb.dns_name
+    zone_id                = aws_lb.int_lb.zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "api-int" {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = "api-int.${data.aws_route53_zone.private.name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.int_lb.dns_name
+    zone_id                = aws_lb.int_lb.zone_id
+    evaluate_target_health = false
+  }
+}
+
+data "aws_route53_zone" "public" {
+    name = "${var.domain}"
+    private_zone = false
+}
+
+resource "aws_route53_record" "api-ext" {
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = "api.${data.external.okd_name.result["name"]}.${data.aws_route53_zone.public.name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.ext_lb.dns_name
+    zone_id                = aws_lb.ext_lb.zone_id
+    evaluate_target_health = false
+  }
+}
 
 
 

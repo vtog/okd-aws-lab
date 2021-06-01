@@ -15,3 +15,5 @@ okd_instance_type = "m5.xlarge"
 okd_master_count  = 3
 okd_node_count    = 2
 
+domain = "tognaci.com"
+

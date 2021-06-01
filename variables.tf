@@ -37,3 +37,6 @@ variable "okd_master_count" {
 variable "okd_node_count" {
 }
 
+variable "domain" {
+}
+
