@@ -29,3 +29,17 @@ variable "vpc_subnet" {
   type = list(string)
 }
 
+variable "okd_name" {
+}
+
+variable "okd_ips" {
+    default = {
+        "0" = "10.1.1.20"
+        "1" = "10.1.1.21"
+        "2" = "10.1.1.22"
+        "3" = "10.1.1.23"
+        "4" = "10.1.1.24"
+        "5" = "10.1.1.25"
+    }
+}
+
