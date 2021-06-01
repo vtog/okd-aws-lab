@@ -1,5 +1,7 @@
 #!/bin/bash
 
+tar -xzvf openshift-install-linux-4.7.0-0.okd-2021-04-24-103438.tar.gz --exclude='README.md'
+
 if [[ -d ./install ]]; then
   rm -rf ./install/
   mkdir -p ./install
