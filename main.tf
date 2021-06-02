@@ -67,18 +67,18 @@ resource "aws_internet_gateway" "lab_internet_gw" {
 # NAT gateway
 
 resource "aws_nat_gateway" "lab_nat_gw" {
-    allocation_id = aws_eip.nat_eip.id
-    subnet_id     = aws_subnet.public1_subnet.id
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public1_subnet.id
 
-    depends_on = [
-        aws_internet_gateway.lab_internet_gw,
-        aws_eip.nat_eip
-    ]
+  depends_on = [
+    aws_internet_gateway.lab_internet_gw,
+    aws_eip.nat_eip
+  ]
 
-    tags = {
-        Name = "${data.external.okd_name.result["name"]}_nat"
-        Lab  = "okd4"
-    }
+  tags = {
+    Name = "${data.external.okd_name.result["name"]}_nat"
+    Lab  = "okd4"
+  }
 }
 
 # Route tables
@@ -362,5 +362,8 @@ module "okd" {
   vpc_cidr         = var.vpc_cidr
   vpc_subnet       = [aws_subnet.public1_subnet.id, aws_subnet.private1_subnet.id]
   okd_name         = "${data.external.okd_name.result["name"]}"
+  ext_tg_6443      = aws_lb_target_group.ext_tg_6443.arn
+  int_tg_6443      = aws_lb_target_group.int_tg_6443.arn
+  int_tg_22623     = aws_lb_target_group.int_tg_22623.arn
 }
 

@@ -549,13 +549,17 @@ resource "aws_s3_bucket_object" "copy-bootstrap" {
   bucket = aws_s3_bucket.okd-infra.id
   key    = "bootstrap.ign"
   source = "${path.root}/install/bootstrap.ign"
+  content_type = "binary/octet-stream"
 }
 
 data "aws_s3_bucket_object" "bootstrap" {
   bucket = "${var.okd_name}-infra"
   key    = "bootstrap.ign"
-}
 
+  depends_on = [
+    aws_s3_bucket_object.copy-bootstrap
+  ]
+}
 
 resource "aws_instance" "okd-bootstrap" {
   ami                    = data.aws_ami.fcos_ami.id
@@ -564,17 +568,28 @@ resource "aws_instance" "okd-bootstrap" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.okd_master_sg.id, aws_security_group.okd_bootstrap_sg.id]
   subnet_id              = var.vpc_subnet[0]
-  user_data              = data.aws_s3_bucket_object.bootstrap.body
+  user_data_base64       = data.aws_s3_bucket_object.bootstrap.body
 
   root_block_device {
     volume_size           = 100
     delete_on_termination = true
   }
 
+  depends_on = [
+    data.aws_s3_bucket_object.bootstrap
+  ]
+
   tags = {
     Name = "${var.okd_name}-bootstrap"
     Lab  = "Containers"
   }
+}
+
+resource "aws_lb_target_group_attachment" "bootstrap-ext" {
+  count = length(aws_instance.okd-bootstrap)
+  target_group_arn = var.ext_tg_6443
+  target_id        = aws_instance.okd-bootstrap[count.index].private_ip
+  port             = 6443
 }
 
 #resource "aws_instance" "okd-master" {
