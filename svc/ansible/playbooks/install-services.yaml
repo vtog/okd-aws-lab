@@ -7,13 +7,13 @@
     state: present
   vars:
     packages:
-    - vim
+    #- vim
     - ntp
-    - make
-    - python3
-    - git
-    - curl
-    - tcpdump
+    #- make
+    #- python3
+    #- git
+    #- curl
+    #- tcpdump
     - nginx
     - bind9
     - bind9utils
