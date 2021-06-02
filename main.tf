@@ -46,7 +46,7 @@ resource "aws_subnet" "private1_subnet" {
 
 resource "aws_eip" "nat_eip" {
   vpc = true
-  
+
   tags = {
     Name = "${data.external.okd_name.result["name"]}_nat_eip"
     Lab  = "okd4"
@@ -122,7 +122,7 @@ resource "aws_route_table_association" "private1_assoc" {
 }
 
 data "aws_route_tables" "lab_rts" {
-    vpc_id = aws_vpc.lab_vpc.id
+  vpc_id = aws_vpc.lab_vpc.id
 }
 
 # Endpoints
@@ -131,7 +131,7 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_id       = aws_vpc.lab_vpc.id
   service_name = "com.amazonaws.${var.aws_region}.s3"
   #route_table_ids = data.aws_route_tables.lab_rts.ids
-  route_table_ids = [ "${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}" ]
+  route_table_ids = ["${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}"]
 
   tags = {
     Name = "${data.external.okd_name.result["name"]}_s3endpoint"
@@ -150,7 +150,7 @@ resource "aws_lb" "ext_lb" {
   enable_deletion_protection = false
 
   tags = {
-    Lab  = "okd4"
+    Lab = "okd4"
   }
 }
 
@@ -163,28 +163,28 @@ resource "aws_lb" "int_lb" {
   enable_deletion_protection = false
 
   tags = {
-    Lab  = "okd4"
+    Lab = "okd4"
   }
 }
 
 resource "aws_lb_target_group" "ext_tg_6443" {
-  name     = "${data.external.okd_name.result["name"]}-ext-6443"
-  vpc_id       = aws_vpc.lab_vpc.id
-  target_type = "ip"
-  protocol = "TCP"
-  port = 6443
+  name                 = "${data.external.okd_name.result["name"]}-ext-6443"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 6443
   deregistration_delay = 60
 
   health_check {
-    enabled = true
-    port     = 6443
-    protocol = "HTTPS"
-    path = "/readyz"
-    interval = 10
-    timeout = 10
-    healthy_threshold = 2
+    enabled             = true
+    port                = 6443
+    protocol            = "HTTPS"
+    path                = "/readyz"
+    interval            = 10
+    timeout             = 10
+    healthy_threshold   = 2
     unhealthy_threshold = 2
-    matcher = "200-399"
+    matcher             = "200-399"
   }
 }
 
@@ -200,23 +200,23 @@ resource "aws_lb_listener" "ext_6443" {
 }
 
 resource "aws_lb_target_group" "int_tg_6443" {
-  name     = "${data.external.okd_name.result["name"]}-int-6443"
-  vpc_id       = aws_vpc.lab_vpc.id
-  target_type = "ip"
-  protocol = "TCP"
-  port = 6443
+  name                 = "${data.external.okd_name.result["name"]}-int-6443"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 6443
   deregistration_delay = 60
 
   health_check {
-    enabled = true
-    port     = 6443
-    protocol = "HTTPS"
-    path = "/readyz"
-    interval = 10
-    timeout = 10
-    healthy_threshold = 2
+    enabled             = true
+    port                = 6443
+    protocol            = "HTTPS"
+    path                = "/readyz"
+    interval            = 10
+    timeout             = 10
+    healthy_threshold   = 2
     unhealthy_threshold = 2
-    matcher = "200-399"
+    matcher             = "200-399"
   }
 }
 
@@ -232,23 +232,23 @@ resource "aws_lb_listener" "int_6443" {
 }
 
 resource "aws_lb_target_group" "int_tg_22623" {
-  name     = "${data.external.okd_name.result["name"]}-int-22623"
-  vpc_id       = aws_vpc.lab_vpc.id
-  target_type = "ip"
-  protocol = "TCP"
-  port = 22623
+  name                 = "${data.external.okd_name.result["name"]}-int-22623"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 22623
   deregistration_delay = 60
 
   health_check {
-    enabled = true
-    port     = 22623
-    protocol = "HTTPS"
-    path = "/healthz"
-    interval = 10
-    timeout = 10
-    healthy_threshold = 2
+    enabled             = true
+    port                = 22623
+    protocol            = "HTTPS"
+    path                = "/healthz"
+    interval            = 10
+    timeout             = 10
+    healthy_threshold   = 2
     unhealthy_threshold = 2
-    matcher = "200-399"
+    matcher             = "200-399"
   }
 }
 
@@ -273,12 +273,12 @@ resource "aws_route53_zone" "private_zone" {
   }
 
   tags = {
-    Lab  = "okd4"
+    Lab = "okd4"
   }
 }
 
 data "aws_route53_zone" "private" {
-  name = "${data.external.okd_name.result["name"]}.${var.domain}"
+  name         = "${data.external.okd_name.result["name"]}.${var.domain}"
   private_zone = true
 
   depends_on = [
@@ -311,8 +311,8 @@ resource "aws_route53_record" "api-int" {
 }
 
 data "aws_route53_zone" "public" {
-    name = "${var.domain}"
-    private_zone = false
+  name         = var.domain
+  private_zone = false
 }
 
 resource "aws_route53_record" "api-ext" {
@@ -361,7 +361,7 @@ module "okd" {
   vpc_id           = aws_vpc.lab_vpc.id
   vpc_cidr         = var.vpc_cidr
   vpc_subnet       = [aws_subnet.public1_subnet.id, aws_subnet.private1_subnet.id]
-  okd_name         = "${data.external.okd_name.result["name"]}"
+  okd_name         = data.external.okd_name.result["name"]
   ext_tg_6443      = aws_lb_target_group.ext_tg_6443.arn
   int_tg_6443      = aws_lb_target_group.int_tg_6443.arn
   int_tg_22623     = aws_lb_target_group.int_tg_22623.arn

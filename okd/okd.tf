@@ -123,420 +123,420 @@ resource "aws_security_group" "okd_worker_sg" {
 }
 
 resource "aws_security_group_rule" "MasterIngressEtcd" {
-  type              = "ingress"
-  description       = "etcd"
-  from_port         = 2379
-  to_port           = 2380
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "etcd"
+  from_port                = 2379
+  to_port                  = 2380
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressVxlan" {
-  type              = "ingress"
-  description       = "vxlan"
-  from_port         = 4789
-  to_port           = 4789
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "vxlan"
+  from_port                = 4789
+  to_port                  = 4789
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerVxlan" {
-  type              = "ingress"
-  description       = "vxlan"
-  from_port         = 4789
-  to_port           = 4789
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "vxlan"
+  from_port                = 4789
+  to_port                  = 4789
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressGeneve" {
-  type              = "ingress"
-  description       = "geneve"
-  from_port         = 6081
-  to_port           = 6081
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "geneve"
+  from_port                = 6081
+  to_port                  = 6081
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerGeneve" {
-  type              = "ingress"
-  description       = "geneve"
-  from_port         = 6081
-  to_port           = 6081
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "geneve"
+  from_port                = 6081
+  to_port                  = 6081
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressIpsecIke" {
-  type              = "ingress"
-  description       = "IPsec IKE"
-  from_port         = 500
-  to_port           = 500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec IKE"
+  from_port                = 500
+  to_port                  = 500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressIpsecNat" {
-  type              = "ingress"
-  description       = "IPsec NAT-T"
-  from_port         = 4500
-  to_port           = 4500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec NAT-T"
+  from_port                = 4500
+  to_port                  = 4500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressIpsecEsp" {
-  type              = "ingress"
-  description       = "IPsec ESP"
-  from_port         = 0
-  to_port           = 0
-  protocol          = 50
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec ESP"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = 50
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerIpsecIke" {
-  type              = "ingress"
-  description       = "IPsec IKE"
-  from_port         = 500
-  to_port           = 500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec IKE"
+  from_port                = 500
+  to_port                  = 500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerIpsecNat" {
-  type              = "ingress"
-  description       = "IPsec NAT-T"
-  from_port         = 4500
-  to_port           = 4500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec NAT-T"
+  from_port                = 4500
+  to_port                  = 4500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerIpsecEsp" {
-  type              = "ingress"
-  description       = "IPsec ESP"
-  from_port         = 0
-  to_port           = 0
-  protocol          = 50
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "IPsec ESP"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = 50
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressInternal" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9999
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9999
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerInternal" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9999
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9999
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressInternalUDP" {
-  type              = "ingress"
-  description       = "Interncal cluster communication"
-  from_port         = 9000
-  to_port           = 9999
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Interncal cluster communication"
+  from_port                = 9000
+  to_port                  = 9999
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerInternalUDP" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9999
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9999
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressKube" {
-  type              = "ingress"
-  description       = "Kubernetes kubelet, scheduler and controller manager"
-  from_port         = 10250
-  to_port           = 10259
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes kubelet, scheduler and controller manager"
+  from_port                = 10250
+  to_port                  = 10259
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerKube" {
-  type              = "ingress"
-  description       = "Kubernetes kubelet, scheduler and controller manager"
-  from_port         = 10250
-  to_port           = 10259
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes kubelet, scheduler and controller manager"
+  from_port                = 10250
+  to_port                  = 10259
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressIngressServices" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerIngressServices" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressIngressServicesUDP" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "MasterIngressWorkerIngressServicesUDP" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_master_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_master_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressVxlan" {
-  type              = "ingress"
-  description       = "Vxlan"
-  from_port         = 4789
-  to_port           = 4789
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Vxlan"
+  from_port                = 4789
+  to_port                  = 4789
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterVxlan" {
-  type              = "ingress"
-  description       = "Vxlan"
-  from_port         = 4789
-  to_port           = 4789
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Vxlan"
+  from_port                = 4789
+  to_port                  = 4789
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressGeneve" {
-  type              = "ingress"
-  description       = "Geneve"
-  from_port         = 6081
-  to_port           = 6081
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Geneve"
+  from_port                = 6081
+  to_port                  = 6081
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterGeneve" {
-  type              = "ingress"
-  description       = "Geneve"
-  from_port         = 6081
-  to_port           = 6081
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Geneve"
+  from_port                = 6081
+  to_port                  = 6081
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressIpsecIke" {
-  type              = "ingress"
-  description       = "IPsec IKE"
-  from_port         = 500
-  to_port           = 500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec IKE"
+  from_port                = 500
+  to_port                  = 500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressIpsecNat" {
-  type              = "ingress"
-  description       = "IPsec NAT-T"
-  from_port         = 4500
-  to_port           = 4500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec NAT-T"
+  from_port                = 4500
+  to_port                  = 4500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressIpsecEsp" {
-  type              = "ingress"
-  description       = "IPsec ESP"
-  from_port         = 0
-  to_port           = 0
-  protocol          = 50
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec ESP"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = 50
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterIpsecIke" {
-  type              = "ingress"
-  description       = "IPsec IKE"
-  from_port         = 500
-  to_port           = 500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec IKE"
+  from_port                = 500
+  to_port                  = 500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterIpsecNat" {
-  type              = "ingress"
-  description       = "IPsec NAT-T"
-  from_port         = 4500
-  to_port           = 4500
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec NAT-T"
+  from_port                = 4500
+  to_port                  = 4500
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterIpsecEsp" {
-  type              = "ingress"
-  description       = "IPsec ESP"
-  from_port         = 0
-  to_port           = 0
-  protocol          = 50
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "IPsec ESP"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = 50
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressInternal" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9900
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9900
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterInternal" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9900
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9900
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressInternalUDP" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9900
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9900
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterInternalUDP" {
-  type              = "ingress"
-  description       = "Internal cluster communication"
-  from_port         = 9000
-  to_port           = 9900
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Internal cluster communication"
+  from_port                = 9000
+  to_port                  = 9900
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressKube" {
-  type              = "ingress"
-  description       = "Kubernetes secure kubelet port"
-  from_port         = 10250
-  to_port           = 10250
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes secure kubelet port"
+  from_port                = 10250
+  to_port                  = 10250
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterKube" {
-  type              = "ingress"
-  description       = "Internal Kubernetes communication"
-  from_port         = 10250
-  to_port           = 10250
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Internal Kubernetes communication"
+  from_port                = 10250
+  to_port                  = 10250
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressIngressServices" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterIngressServices" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "tcp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressIngressServicesUDP" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_worker_sg.id
 }
 
 resource "aws_security_group_rule" "WorkerIngressMasterIngressServicesUDP" {
-  type              = "ingress"
-  description       = "Kubernetes ingress services"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "udp"
-  security_group_id = aws_security_group.okd_worker_sg.id
+  type                     = "ingress"
+  description              = "Kubernetes ingress services"
+  from_port                = 30000
+  to_port                  = 32767
+  protocol                 = "udp"
+  security_group_id        = aws_security_group.okd_worker_sg.id
   source_security_group_id = aws_security_group.okd_master_sg.id
 }
 
 # S3
 
 resource "aws_s3_bucket" "okd-infra" {
-  bucket = "${var.okd_name}-infra"
-  acl    = "private"
+  bucket        = "${var.okd_name}-infra"
+  acl           = "private"
   force_destroy = true
 
   tags = {
@@ -546,9 +546,9 @@ resource "aws_s3_bucket" "okd-infra" {
 }
 
 resource "aws_s3_bucket_object" "copy-bootstrap" {
-  bucket = aws_s3_bucket.okd-infra.id
-  key    = "bootstrap.ign"
-  source = "${path.root}/install/bootstrap.ign"
+  bucket       = aws_s3_bucket.okd-infra.id
+  key          = "bootstrap.ign"
+  source       = "${path.root}/install/bootstrap.ign"
   content_type = "binary/octet-stream"
 }
 
@@ -586,7 +586,7 @@ resource "aws_instance" "okd-bootstrap" {
 }
 
 resource "aws_lb_target_group_attachment" "bootstrap-ext" {
-  count = length(aws_instance.okd-bootstrap)
+  count            = length(aws_instance.okd-bootstrap)
   target_group_arn = var.ext_tg_6443
   target_id        = aws_instance.okd-bootstrap[count.index].private_ip
   port             = 6443
