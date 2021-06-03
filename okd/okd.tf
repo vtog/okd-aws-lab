@@ -553,15 +553,6 @@ resource "aws_s3_bucket_object" "copy-bootstrap" {
   acl          = "public-read"
 }
 
-#data "aws_s3_bucket_object" "bootstrap" {
-#  bucket = "${var.okd_name}-infra"
-#  key    = "bootstrap.ign"
-#
-#  depends_on = [
-#    aws_s3_bucket_object.copy-bootstrap
-#  ]
-#}
-
 # IAM
 
 data "aws_iam_policy_document" "instance-assume-role-policy" {
@@ -647,11 +638,25 @@ resource "aws_instance" "okd-bootstrap" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "bootstrap-ext" {
+resource "aws_lb_target_group_attachment" "bootstrap-ext-6443" {
   count            = length(aws_instance.okd-bootstrap)
   target_group_arn = var.ext_tg_6443
   target_id        = aws_instance.okd-bootstrap[count.index].private_ip
   port             = 6443
+}
+
+resource "aws_lb_target_group_attachment" "bootstrap-int-6443" {
+  count            = length(aws_instance.okd-bootstrap)
+  target_group_arn = var.int_tg_6443
+  target_id        = aws_instance.okd-bootstrap[count.index].private_ip
+  port             = 6443
+}
+
+resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
+  count            = length(aws_instance.okd-bootstrap)
+  target_group_arn = var.int_tg_22623
+  target_id        = aws_instance.okd-bootstrap[count.index].private_ip
+  port             = 22623
 }
 
 #resource "aws_instance" "okd-master" {
