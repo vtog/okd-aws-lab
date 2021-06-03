@@ -550,15 +550,76 @@ resource "aws_s3_bucket_object" "copy-bootstrap" {
   key          = "bootstrap.ign"
   source       = "${path.root}/install/bootstrap.ign"
   content_type = "binary/octet-stream"
+  acl          = "public-read"
 }
 
-data "aws_s3_bucket_object" "bootstrap" {
-  bucket = "${var.okd_name}-infra"
-  key    = "bootstrap.ign"
+#data "aws_s3_bucket_object" "bootstrap" {
+#  bucket = "${var.okd_name}-infra"
+#  key    = "bootstrap.ign"
+#
+#  depends_on = [
+#    aws_s3_bucket_object.copy-bootstrap
+#  ]
+#}
 
-  depends_on = [
-    aws_s3_bucket_object.copy-bootstrap
-  ]
+# IAM
+
+data "aws_iam_policy_document" "instance-assume-role-policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "bootstrap-iam-role" {
+  name = "${var.okd_name}-bootstrap-iam-role"
+  assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
+  path = "/"
+
+  inline_policy {
+    name = "${var.okd_name}-bootstrap-policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["ec2:Describe*"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+        {
+          Action   = ["ec2:AttachVolume"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+        {
+          Action   = ["ec2:DetachVolume"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+        {
+          Action   = ["s3:GetObject"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }
+}
+
+resource "aws_iam_instance_profile" "bootstrap_profile" {
+  name = "${var.okd_name}-bootstrap-iam-profile"
+  role = aws_iam_role.bootstrap-iam-role.name
+}
+
+locals {
+  ignition = jsonencode({
+    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
+  })
 }
 
 resource "aws_instance" "okd-bootstrap" {
@@ -568,7 +629,8 @@ resource "aws_instance" "okd-bootstrap" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.okd_master_sg.id, aws_security_group.okd_bootstrap_sg.id]
   subnet_id              = var.vpc_subnet[0]
-  user_data_base64       = data.aws_s3_bucket_object.bootstrap.body
+  iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
+  user_data              = local.ignition
 
   root_block_device {
     volume_size           = 100
@@ -576,7 +638,7 @@ resource "aws_instance" "okd-bootstrap" {
   }
 
   depends_on = [
-    data.aws_s3_bucket_object.bootstrap
+    aws_s3_bucket_object.copy-bootstrap
   ]
 
   tags = {
