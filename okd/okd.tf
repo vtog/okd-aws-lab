@@ -592,11 +592,6 @@ resource "aws_iam_role" "bootstrap-iam-role" {
           Effect   = "Allow"
           Resource = "*"
         },
-        {
-          Action   = ["s3:GetObject"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
       ]
     })
   }
@@ -607,8 +602,10 @@ resource "aws_iam_instance_profile" "bootstrap_profile" {
   role = aws_iam_role.bootstrap-iam-role.name
 }
 
+# EC2
+
 locals {
-  ignition = jsonencode({
+  bootstrap-ign = jsonencode({
     "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
   })
 }
@@ -620,8 +617,8 @@ resource "aws_instance" "okd-bootstrap" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.okd_master_sg.id, aws_security_group.okd_bootstrap_sg.id]
   subnet_id              = var.vpc_subnet[0]
-  iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
-  user_data              = local.ignition
+  #iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
+  user_data              = local.bootstrap-ign
 
   root_block_device {
     volume_size           = 100
@@ -659,34 +656,48 @@ resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
   port             = 22623
 }
 
-#resource "aws_instance" "okd-master" {
-#  ami                    = data.aws_ami.fcos_ami.id
-#  instance_type          = "m5.xlarge"
-#  count                  = 3
-#  key_name               = var.key_name
-#  vpc_security_group_ids = [aws_security_group.okd_sg.id]
-#  subnet_id              = var.vpc_subnet[0]
-#  private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
+locals {
+  master-ign = jsonencode({
+    "ignition":{"config":{"merge":[{"source":"${var.okd_masterignloc}"}]},"security":{"tls":{"certificateAuthorities":[{"source":"${var.okd_masterigncert}"}]}},"version":"3.2.0"}
+  })
+}
 
-#  root_block_device {
-#    volume_size           = 100
-#    delete_on_termination = true
-#  }
+resource "aws_instance" "okd-master" {
+  ami                    = data.aws_ami.fcos_ami.id
+  instance_type          = "m5.xlarge"
+  count                  = 3
+  key_name               = var.key_name
+  vpc_security_group_ids = [aws_security_group.okd_master_sg.id]
+  subnet_id              = var.vpc_subnet[0]
+  #private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
+  user_data              = local.master-ign
 
-#  tags = {
-#    Name = "okd-master-${count.index + 1}"
-#    Lab  = "Containers"
-#  }
-#}
+  root_block_device {
+    volume_size           = 100
+    delete_on_termination = true
+  }
+
+  tags = {
+    Name = "okd-master-${count.index + 1}"
+    Lab  = "Containers"
+  }
+}
+
+locals {
+  worker-ign = jsonencode({
+    "ignition":{"config":{"merge":[{"source":"${var.okd_workerignloc}"}]},"security":{"tls":{"certificateAuthorities":[{"source":"${var.okd_workerigncert}"}]}},"version":"3.2.0"}
+  })
+}
 
 #resource "aws_instance" "okd-worker" {
 #  ami                    = data.aws_ami.fcos_ami.id
-#  instance_type          = "m5.large"
+#  instance_type          = "m5.2xlarge"
 #  count                  = 2
 #  key_name               = var.key_name
-#  vpc_security_group_ids = [aws_security_group.okd_sg.id]
+#  vpc_security_group_ids = [aws_security_group.okd_worker_sg.id]
 #  subnet_id              = var.vpc_subnet[0]
-#  private_ip             = "${lookup(var.okd_ips,count.index + 4)}"
+#  #private_ip             = "${lookup(var.okd_ips,count.index + 4)}"
+#  user_data              = local.worker-ign
 
 #  root_block_device {
 #    volume_size           = 100
@@ -696,55 +707,6 @@ resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
 #  tags = {
 #    Name = "okd-worker-${count.index + 1}"
 #    Lab  = "Containers"
-#  }
-#}
-
-# write out centos inventory
-#data "template_file" "inventory" {
-#  template = <<EOF
-#[all]
-#%{ for instance in aws_instance.okd-bootstrap ~}
-#${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
-#%{ endfor ~}
-#%{ for instance in aws_instance.okd-master ~}
-#${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
-#%{ endfor ~}
-#%{ for instance in aws_instance.okd-worker ~}
-#${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
-#%{ endfor ~}
-
-#[masters]
-#%{ for instance in aws_instance.okd-master ~}
-#${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
-#%{ endfor ~}
-
-#[nodes]
-#%{ for instance in aws_instance.okd-worker ~}
-#${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
-#%{ endfor ~}
-
-#[all:vars]
-#ansible_user=core
-#ansible_playbook_python=/usr/bin/python3
-
-#EOF
-#}
-
-#resource "local_file" "save_inventory" {
-#  depends_on = [data.template_file.inventory]
-#  content    = data.template_file.inventory.rendered
-#  filename   = "./okd/ansible/inventory.ini"
-#}
-
-#----- Run Ansible Playbook -----
-#resource "null_resource" "ansible" {
-#  provisioner "local-exec" {
-#    working_dir = "./okd/ansible/"
-#
-#    command = <<EOF
-#    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.okd-master.*.id)}
-#    ansible-playbook ./playbooks/prep-fcos.yaml
-#    EOF
 #  }
 #}
 
