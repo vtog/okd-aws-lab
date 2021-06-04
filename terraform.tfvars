@@ -17,4 +17,5 @@ worker_inst_type = "m5.2xlarge"
 worker_count     = 2
 
 domain = "tognaci.com"
+okd_name = "okd-terra"
 

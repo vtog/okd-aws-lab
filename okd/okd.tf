@@ -555,52 +555,52 @@ resource "aws_s3_bucket_object" "copy-bootstrap" {
 
 # IAM
 
-data "aws_iam_policy_document" "instance-assume-role-policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "bootstrap-iam-role" {
-  name = "${var.okd_name}-bootstrap-iam-role"
-  assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
-  path = "/"
-
-  inline_policy {
-    name = "${var.okd_name}-bootstrap-policy"
-
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action   = ["ec2:Describe*"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-        {
-          Action   = ["ec2:AttachVolume"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-        {
-          Action   = ["ec2:DetachVolume"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-      ]
-    })
-  }
-}
-
-resource "aws_iam_instance_profile" "bootstrap_profile" {
-  name = "${var.okd_name}-bootstrap-iam-profile"
-  role = aws_iam_role.bootstrap-iam-role.name
-}
+#data "aws_iam_policy_document" "instance-assume-role-policy" {
+  #statement {
+    #actions = ["sts:AssumeRole"]
+#
+    #principals {
+      #type        = "Service"
+      #identifiers = ["ec2.amazonaws.com"]
+    #}
+  #}
+#}
+#
+#resource "aws_iam_role" "bootstrap-iam-role" {
+  #name = "${var.okd_name}-bootstrap-iam-role"
+  #assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
+  #path = "/"
+#
+  #inline_policy {
+    #name = "${var.okd_name}-bootstrap-policy"
+#
+    #policy = jsonencode({
+      #Version = "2012-10-17"
+      #Statement = [
+        #{
+          #Action   = ["ec2:Describe*"]
+          #Effect   = "Allow"
+          #Resource = "*"
+        #},
+        #{
+          #Action   = ["ec2:AttachVolume"]
+          #Effect   = "Allow"
+          #Resource = "*"
+        #},
+        #{
+          #Action   = ["ec2:DetachVolume"]
+          #Effect   = "Allow"
+          #Resource = "*"
+        #},
+      #]
+    #})
+  #}
+#}
+#
+#resource "aws_iam_instance_profile" "bootstrap_profile" {
+  #name = "${var.okd_name}-bootstrap-iam-profile"
+  #role = aws_iam_role.bootstrap-iam-role.name
+#}
 
 # EC2
 
@@ -630,7 +630,7 @@ resource "aws_instance" "okd-bootstrap" {
   ]
 
   tags = {
-    Name = "${var.okd_name}-bootstrap"
+    Name = "okd-bootstrap"
     Lab  = "Containers"
   }
 }
@@ -668,8 +668,9 @@ resource "aws_instance" "okd-master" {
   count                  = var.master_count
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.okd_master_sg.id]
-  subnet_id              = var.vpc_subnet[0]
+  subnet_id              = var.vpc_subnet[1]
   #private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
+  associate_public_ip_address = false
   user_data              = local.master-ign
 
   root_block_device {
@@ -683,11 +684,32 @@ resource "aws_instance" "okd-master" {
   }
 }
 
-locals {
-  worker-ign = jsonencode({
-    "ignition":{"config":{"merge":[{"source":"${var.okd_workerignloc}"}]},"security":{"tls":{"certificateAuthorities":[{"source":"${var.okd_workerigncert}"}]}},"version":"3.2.0"}
-  })
+resource "aws_lb_target_group_attachment" "master-ext-6443" {
+  count            = length(aws_instance.okd-master)
+  target_group_arn = var.ext_tg_6443
+  target_id        = aws_instance.okd-master[count.index].private_ip
+  port             = 6443
 }
+
+resource "aws_lb_target_group_attachment" "master-int-6443" {
+  count            = length(aws_instance.okd-master)
+  target_group_arn = var.int_tg_6443
+  target_id        = aws_instance.okd-master[count.index].private_ip
+  port             = 6443
+}
+
+resource "aws_lb_target_group_attachment" "master-int-22623" {
+  count            = length(aws_instance.okd-master)
+  target_group_arn = var.int_tg_22623
+  target_id        = aws_instance.okd-master[count.index].private_ip
+  port             = 22623
+}
+
+#locals {
+  #worker-ign = jsonencode({
+    #"ignition":{"config":{"merge":[{"source":"${var.okd_workerignloc}"}]},"security":{"tls":{"certificateAuthorities":[{"source":"${var.okd_workerigncert}"}]}},"version":"3.2.0"}
+  #})
+#}
 
 #resource "aws_instance" "okd-worker" {
 #  ami                    = data.aws_ami.fcos_ami.id
@@ -695,7 +717,7 @@ locals {
 #  count                  = var.worker_count
 #  key_name               = var.key_name
 #  vpc_security_group_ids = [aws_security_group.okd_worker_sg.id]
-#  subnet_id              = var.vpc_subnet[0]
+#  subnet_id              = var.vpc_subnet[1]
 #  #private_ip             = "${lookup(var.okd_ips,count.index + 4)}"
 #  user_data              = local.worker-ign
 

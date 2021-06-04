@@ -59,3 +59,6 @@ variable "worker_count" {
 variable "domain" {
 }
 
+variable "okd_name" {
+}
+

@@ -266,7 +266,7 @@ resource "aws_lb_listener" "int_22623" {
 # Route53
 
 resource "aws_route53_zone" "private_zone" {
-  name = "${data.external.okd_name.result["name"]}.${var.domain}"
+  name = "${var.okd_name}.${var.domain}"
 
   vpc {
     vpc_id = aws_vpc.lab_vpc.id
@@ -278,7 +278,7 @@ resource "aws_route53_zone" "private_zone" {
 }
 
 data "aws_route53_zone" "private" {
-  name         = "${data.external.okd_name.result["name"]}.${var.domain}"
+  name         = "${var.okd_name}.${var.domain}"
   private_zone = true
 
   depends_on = [
@@ -317,7 +317,7 @@ data "aws_route53_zone" "public" {
 
 resource "aws_route53_record" "api-ext" {
   zone_id = data.aws_route53_zone.public.zone_id
-  name    = "api.${data.external.okd_name.result["name"]}.${data.aws_route53_zone.public.name}"
+  name    = "api.${var.okd_name}.${data.aws_route53_zone.public.name}"
   type    = "A"
 
   alias {
