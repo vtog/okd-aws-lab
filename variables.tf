@@ -44,13 +44,16 @@ variable "key_name" {
 variable "public_key_path" {
 }
 
-variable "okd_instance_type" {
+variable "master_inst_type" {
 }
 
-variable "okd_master_count" {
+variable "master_count" {
 }
 
-variable "okd_node_count" {
+variable "worker_inst_type" {
+}
+
+variable "worker_count" {
 }
 
 variable "domain" {

@@ -11,9 +11,10 @@ cidrs = {
 key_name        = "container-lab-key"
 public_key_path = "~/.ssh/id_rsa.pub"
 
-okd_instance_type = "m5.xlarge"
-okd_master_count  = 3
-okd_node_count    = 2
+master_inst_type = "m5.xlarge"
+master_count     = 3
+worker_inst_type = "m5.2xlarge"
+worker_count     = 2
 
 domain = "tognaci.com"
 

@@ -664,8 +664,8 @@ locals {
 
 resource "aws_instance" "okd-master" {
   ami                    = data.aws_ami.fcos_ami.id
-  instance_type          = "m5.xlarge"
-  count                  = 3
+  instance_type          = var.master_inst_type
+  count                  = var.master_count
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.okd_master_sg.id]
   subnet_id              = var.vpc_subnet[0]
@@ -679,7 +679,7 @@ resource "aws_instance" "okd-master" {
 
   tags = {
     Name = "okd-master-${count.index + 1}"
-    Lab  = "Containers"
+    Lab  = "okd4"
   }
 }
 
@@ -691,8 +691,8 @@ locals {
 
 #resource "aws_instance" "okd-worker" {
 #  ami                    = data.aws_ami.fcos_ami.id
-#  instance_type          = "m5.2xlarge"
-#  count                  = 2
+#  instance_type          = var.worker_inst_type
+#  count                  = var.worker_count
 #  key_name               = var.key_name
 #  vpc_security_group_ids = [aws_security_group.okd_worker_sg.id]
 #  subnet_id              = var.vpc_subnet[0]
@@ -706,7 +706,7 @@ locals {
 
 #  tags = {
 #    Name = "okd-worker-${count.index + 1}"
-#    Lab  = "Containers"
+#    Lab  = "okd4"
 #  }
 #}
 

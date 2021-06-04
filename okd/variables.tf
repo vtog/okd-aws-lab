@@ -10,13 +10,16 @@ variable "myIP" {
 variable "key_name" {
 }
 
-variable "instance_type" {
+variable "master_inst_type" {
 }
 
-variable "okd_master_count" {
+variable "master_count" {
 }
 
-variable "okd_node_count" {
+variable "worker_inst_type" {
+}
+
+variable "worker_count" {
 }
 
 variable "vpc_id" {

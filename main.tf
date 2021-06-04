@@ -355,9 +355,10 @@ module "okd" {
   aws_profile       = var.aws_profile
   myIP              = "${chomp(data.http.myIP.body)}/32"
   key_name          = var.key_name
-  instance_type     = var.okd_instance_type
-  okd_master_count  = var.okd_master_count
-  okd_node_count    = var.okd_node_count
+  master_inst_type  = var.master_inst_type
+  master_count      = var.master_count
+  worker_inst_type  = var.worker_inst_type
+  worker_count      = var.worker_count
   vpc_id            = aws_vpc.lab_vpc.id
   vpc_cidr          = var.vpc_cidr
   vpc_subnet        = [aws_subnet.public1_subnet.id, aws_subnet.private1_subnet.id]
