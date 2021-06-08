@@ -18,40 +18,29 @@ resource "aws_vpc" "lab_vpc" {
 
 # Subnets
 
-resource "aws_subnet" "public1_subnet" {
+resource "aws_subnet" "az1_subnet" {
   vpc_id                  = aws_vpc.lab_vpc.id
-  cidr_block              = var.cidrs["public1"]
+  cidr_block              = var.cidrs["az1"]
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_public1"
-    Lab  = "okd4"
-  }
-}
-
-resource "aws_subnet" "private1_subnet" {
-  vpc_id                  = aws_vpc.lab_vpc.id
-  cidr_block              = var.cidrs["private1"]
-  map_public_ip_on_launch = true
-  availability_zone       = data.aws_availability_zones.available.names[0]
-
-  tags = {
-    Name = "${data.external.okd_name.result["name"]}_private1"
+    Name = "${data.external.okd_name.result["name"]}_az1"
+    "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "shared"
     Lab  = "okd4"
   }
 }
 
 # Allocate EIP
 
-resource "aws_eip" "nat_eip" {
-  vpc = true
-
-  tags = {
-    Name = "${data.external.okd_name.result["name"]}_nat_eip"
-    Lab  = "okd4"
-  }
-}
+#resource "aws_eip" "nat_eip" {
+  #vpc = true
+#
+  #tags = {
+    #Name = "${data.external.okd_name.result["name"]}_nat_eip"
+    #Lab  = "okd4"
+  #}
+#}
 
 # Internet gateway
 
@@ -66,20 +55,20 @@ resource "aws_internet_gateway" "lab_internet_gw" {
 
 # NAT gateway
 
-resource "aws_nat_gateway" "lab_nat_gw" {
-  allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.public1_subnet.id
-
-  depends_on = [
-    aws_internet_gateway.lab_internet_gw,
-    aws_eip.nat_eip
-  ]
-
-  tags = {
-    Name = "${data.external.okd_name.result["name"]}_nat"
-    Lab  = "okd4"
-  }
-}
+#resource "aws_nat_gateway" "lab_nat_gw" {
+  #allocation_id = aws_eip.nat_eip.id
+  #subnet_id     = aws_subnet.public1_subnet.id
+#
+  #depends_on = [
+    #aws_internet_gateway.lab_internet_gw,
+    #aws_eip.nat_eip
+  #]
+#
+  #tags = {
+    #Name = "${data.external.okd_name.result["name"]}_nat"
+    #Lab  = "okd4"
+  #}
+#}
 
 # Route tables
 
@@ -92,52 +81,47 @@ resource "aws_route_table" "lab_public_rt" {
   }
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_public"
+    Name = "${data.external.okd_name.result["name"]}_public_rt"
     Lab  = "okd4"
   }
 }
 
-resource "aws_route_table" "lab_private_rt" {
-  vpc_id = aws_vpc.lab_vpc.id
+#resource "aws_route_table" "lab_private_rt" {
+  #vpc_id = aws_vpc.lab_vpc.id
+#
+  #route {
+    #cidr_block = "0.0.0.0/0"
+    #gateway_id = aws_nat_gateway.lab_nat_gw.id
+  #}
+#
+  #tags = {
+    #Name = "${data.external.okd_name.result["name"]}_private"
+    #Lab  = "okd4"
+  #}
+#}
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.lab_nat_gw.id
-  }
-
-  tags = {
-    Name = "${data.external.okd_name.result["name"]}_private"
-    Lab  = "okd4"
-  }
-}
-
-resource "aws_route_table_association" "public1_assoc" {
-  subnet_id      = aws_subnet.public1_subnet.id
+resource "aws_route_table_association" "az1_assoc" {
+  subnet_id      = aws_subnet.az1_subnet.id
   route_table_id = aws_route_table.lab_public_rt.id
 }
 
-resource "aws_route_table_association" "private1_assoc" {
-  subnet_id      = aws_subnet.private1_subnet.id
-  route_table_id = aws_route_table.lab_private_rt.id
-}
-
-data "aws_route_tables" "lab_rts" {
-  vpc_id = aws_vpc.lab_vpc.id
-}
+#data "aws_route_tables" "lab_rts" {
+  #vpc_id = aws_vpc.lab_vpc.id
+#}
 
 # Endpoints
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id       = aws_vpc.lab_vpc.id
-  service_name = "com.amazonaws.${var.aws_region}.s3"
-  #route_table_ids = data.aws_route_tables.lab_rts.ids
-  route_table_ids = ["${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}"]
-
-  tags = {
-    Name = "${data.external.okd_name.result["name"]}_s3endpoint"
-    Lab  = "okd4"
-  }
-}
+#resource "aws_vpc_endpoint" "s3" {
+  #vpc_id       = aws_vpc.lab_vpc.id
+  #service_name = "com.amazonaws.${var.aws_region}.s3"
+  ##route_table_ids = data.aws_route_tables.lab_rts.ids
+  #route_table_ids = ["${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}"]
+#
+  #tags = {
+    #Name = "${data.external.okd_name.result["name"]}_s3endpoint"
+    #Lab  = "okd4"
+  #}
+#}
 
 # Network load balancers
 
@@ -145,7 +129,7 @@ resource "aws_lb" "ext_lb" {
   name               = "${data.external.okd_name.result["name"]}-extlb"
   internal           = false
   load_balancer_type = "network"
-  subnets            = aws_subnet.public1_subnet.*.id
+  subnets            = aws_subnet.az1_subnet.*.id
 
   enable_deletion_protection = false
 
@@ -158,7 +142,7 @@ resource "aws_lb" "int_lb" {
   name               = "${data.external.okd_name.result["name"]}-intlb"
   internal           = true
   load_balancer_type = "network"
-  subnets            = aws_subnet.private1_subnet.*.id
+  subnets            = aws_subnet.az1_subnet.*.id
 
   enable_deletion_protection = false
 
@@ -361,7 +345,7 @@ module "okd" {
   worker_count      = var.worker_count
   vpc_id            = aws_vpc.lab_vpc.id
   vpc_cidr          = var.vpc_cidr
-  vpc_subnet        = [aws_subnet.public1_subnet.id, aws_subnet.private1_subnet.id]
+  vpc_subnet        = [aws_subnet.az1_subnet.id]
   okd_name          = data.external.okd_name.result["name"]
   okd_masterignloc  = data.external.okd_masterignloc.result["masterignloc"]
   okd_masterigncert = data.external.okd_masterigncert.result["masterigncert"]

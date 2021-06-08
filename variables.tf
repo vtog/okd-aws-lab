@@ -15,7 +15,7 @@ variable "cidrs" {
 }
 
 data "http" "myIP" {
-  url = "http://ipv4.icanhazip.com"
+  url = "https://api.ipify.org/"
 }
 
 data "external" "okd_name" {
