@@ -175,6 +175,11 @@ resource "aws_iam_role" "bootstrap-iam-role" {
           Resource = "*"
         },
         {
+          Action   = ["route53:*"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+        {
           Action   = ["kms:DescribeKey"]
           Effect   = "Allow"
           Resource = "*"
