@@ -31,17 +31,6 @@ resource "aws_subnet" "az1_subnet" {
   }
 }
 
-# Allocate EIP
-
-#resource "aws_eip" "nat_eip" {
-  #vpc = true
-#
-  #tags = {
-    #Name = "${var.cluster_name}_nat_eip"
-    #Lab  = "okd4"
-  #}
-#}
-
 # Internet gateway
 
 resource "aws_internet_gateway" "lab_internet_gw" {
@@ -52,23 +41,6 @@ resource "aws_internet_gateway" "lab_internet_gw" {
     Lab  = "okd4"
   }
 }
-
-# NAT gateway
-
-#resource "aws_nat_gateway" "lab_nat_gw" {
-  #allocation_id = aws_eip.nat_eip.id
-  #subnet_id     = aws_subnet.public1_subnet.id
-#
-  #depends_on = [
-    #aws_internet_gateway.lab_internet_gw,
-    #aws_eip.nat_eip
-  #]
-#
-  #tags = {
-    #Name = "${var.cluster_name}_nat"
-    #Lab  = "okd4"
-  #}
-#}
 
 # Route tables
 
@@ -86,42 +58,10 @@ resource "aws_route_table" "lab_public_rt" {
   }
 }
 
-#resource "aws_route_table" "lab_private_rt" {
-  #vpc_id = aws_vpc.lab_vpc.id
-#
-  #route {
-    #cidr_block = "0.0.0.0/0"
-    #gateway_id = aws_nat_gateway.lab_nat_gw.id
-  #}
-#
-  #tags = {
-    #Name = "${var.cluster_name}_private"
-    #Lab  = "okd4"
-  #}
-#}
-
 resource "aws_route_table_association" "az1_assoc" {
   subnet_id      = aws_subnet.az1_subnet.id
   route_table_id = aws_route_table.lab_public_rt.id
 }
-
-#data "aws_route_tables" "lab_rts" {
-  #vpc_id = aws_vpc.lab_vpc.id
-#}
-
-# Endpoints
-
-#resource "aws_vpc_endpoint" "s3" {
-  #vpc_id       = aws_vpc.lab_vpc.id
-  #service_name = "com.amazonaws.${var.aws_region}.s3"
-  ##route_table_ids = data.aws_route_tables.lab_rts.ids
-  #route_table_ids = ["${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}"]
-#
-  #tags = {
-    #Name = "${var.cluster_name}_s3endpoint"
-    #Lab  = "okd4"
-  #}
-#}
 
 # Network load balancers
 
