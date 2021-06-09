@@ -278,6 +278,10 @@ resource "aws_route53_record" "api" {
   name    = "api.${data.aws_route53_zone.private.name}"
   type    = "A"
 
+  depends_on = [
+    aws_lb.int_lb
+  ]
+
   alias {
     name                   = aws_lb.int_lb.dns_name
     zone_id                = aws_lb.int_lb.zone_id
@@ -289,6 +293,10 @@ resource "aws_route53_record" "api-int" {
   zone_id = data.aws_route53_zone.private.zone_id
   name    = "api-int.${data.aws_route53_zone.private.name}"
   type    = "A"
+
+  depends_on = [
+    aws_lb.int_lb
+  ]
 
   alias {
     name                   = aws_lb.int_lb.dns_name
@@ -306,6 +314,10 @@ resource "aws_route53_record" "api-ext" {
   zone_id = data.aws_route53_zone.public.zone_id
   name    = "api.${var.cluster_name}.${data.aws_route53_zone.public.name}"
   type    = "A"
+
+  depends_on = [
+    aws_lb.ext_lb
+  ]
 
   alias {
     name                   = aws_lb.ext_lb.dns_name
