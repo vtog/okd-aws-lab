@@ -35,18 +35,6 @@ variable "vpc_subnet" {
 variable "okd_name" {
 }
 
-variable "okd_masterignloc" {
-}
-
-variable "okd_masterigncert" {
-}
-
-variable "okd_workerignloc" {
-}
-
-variable "okd_workerigncert" {
-}
-
 variable "ext_tg_6443" {
 }
 

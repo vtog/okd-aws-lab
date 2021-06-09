@@ -22,22 +22,6 @@ data "external" "okd_name" {
   program = ["bash", "scripts/get_okd_name.sh"]
 }
 
-data "external" "okd_masterigncert" {
-  program = ["bash", "scripts/get_okd_masterigncert.sh"]
-}
-
-data "external" "okd_masterignloc" {
-  program = ["bash", "scripts/get_okd_masterignloc.sh"]
-}
-
-data "external" "okd_workerigncert" {
-  program = ["bash", "scripts/get_okd_workerigncert.sh"]
-}
-
-data "external" "okd_workerignloc" {
-  program = ["bash", "scripts/get_okd_workerignloc.sh"]
-}
-
 variable "key_name" {
 }
 

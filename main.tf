@@ -349,10 +349,6 @@ module "okd" {
   vpc_cidr          = var.vpc_cidr
   vpc_subnet        = [aws_subnet.az1_subnet.id]
   okd_name          = data.external.okd_name.result["name"]
-  okd_masterignloc  = data.external.okd_masterignloc.result["masterignloc"]
-  okd_masterigncert = data.external.okd_masterigncert.result["masterigncert"]
-  okd_workerignloc  = data.external.okd_workerignloc.result["workerignloc"]
-  okd_workerigncert = data.external.okd_workerigncert.result["workerigncert"]
   ext_tg_6443       = aws_lb_target_group.ext_tg_6443.arn
   int_tg_6443       = aws_lb_target_group.int_tg_6443.arn
   int_tg_22623      = aws_lb_target_group.int_tg_22623.arn
