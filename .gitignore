@@ -31,4 +31,5 @@ override.tf.json
 
 .vscode
 install
+openshift*.gz
 openshift-install
