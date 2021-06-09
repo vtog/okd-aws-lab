@@ -32,6 +32,21 @@ variable "vpc_subnet" {
   type = list(string)
 }
 
+variable "private_domain" {
+}
+
+variable "private_domain_id" {
+}
+
+variable "public_domain" {
+}
+
+variable "public_domain_id" {
+}
+
+variable "cluster_name" {
+}
+
 variable "okd_name" {
 }
 

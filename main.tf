@@ -11,7 +11,7 @@ resource "aws_vpc" "lab_vpc" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_vpc"
+    Name = "${var.cluster_name}_vpc"
     Lab  = "okd4"
   }
 }
@@ -25,7 +25,7 @@ resource "aws_subnet" "az1_subnet" {
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_az1"
+    Name = "${var.cluster_name}_az1"
     "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "shared"
     Lab  = "okd4"
   }
@@ -37,7 +37,7 @@ resource "aws_subnet" "az1_subnet" {
   #vpc = true
 #
   #tags = {
-    #Name = "${data.external.okd_name.result["name"]}_nat_eip"
+    #Name = "${var.cluster_name}_nat_eip"
     #Lab  = "okd4"
   #}
 #}
@@ -48,7 +48,7 @@ resource "aws_internet_gateway" "lab_internet_gw" {
   vpc_id = aws_vpc.lab_vpc.id
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_igw"
+    Name = "${var.cluster_name}_igw"
     Lab  = "okd4"
   }
 }
@@ -65,7 +65,7 @@ resource "aws_internet_gateway" "lab_internet_gw" {
   #]
 #
   #tags = {
-    #Name = "${data.external.okd_name.result["name"]}_nat"
+    #Name = "${var.cluster_name}_nat"
     #Lab  = "okd4"
   #}
 #}
@@ -81,7 +81,7 @@ resource "aws_route_table" "lab_public_rt" {
   }
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}_public_rt"
+    Name = "${var.cluster_name}_public_rt"
     Lab  = "okd4"
   }
 }
@@ -95,7 +95,7 @@ resource "aws_route_table" "lab_public_rt" {
   #}
 #
   #tags = {
-    #Name = "${data.external.okd_name.result["name"]}_private"
+    #Name = "${var.cluster_name}_private"
     #Lab  = "okd4"
   #}
 #}
@@ -118,7 +118,7 @@ resource "aws_route_table_association" "az1_assoc" {
   #route_table_ids = ["${aws_route_table.lab_private_rt.id}", "${aws_route_table.lab_public_rt.id}"]
 #
   #tags = {
-    #Name = "${data.external.okd_name.result["name"]}_s3endpoint"
+    #Name = "${var.cluster_name}_s3endpoint"
     #Lab  = "okd4"
   #}
 #}
@@ -126,7 +126,7 @@ resource "aws_route_table_association" "az1_assoc" {
 # Network load balancers
 
 resource "aws_lb" "ext_lb" {
-  name               = "${data.external.okd_name.result["name"]}-extlb"
+  name               = "${var.cluster_name}-extlb"
   internal           = false
   load_balancer_type = "network"
   subnets            = aws_subnet.az1_subnet.*.id
@@ -139,7 +139,7 @@ resource "aws_lb" "ext_lb" {
 }
 
 resource "aws_lb" "int_lb" {
-  name               = "${data.external.okd_name.result["name"]}-intlb"
+  name               = "${var.cluster_name}-intlb"
   internal           = true
   load_balancer_type = "network"
   subnets            = aws_subnet.az1_subnet.*.id
@@ -152,7 +152,7 @@ resource "aws_lb" "int_lb" {
 }
 
 resource "aws_lb_target_group" "ext_tg_6443" {
-  name                 = "${data.external.okd_name.result["name"]}-ext-6443"
+  name                 = "${var.cluster_name}-ext-6443"
   vpc_id               = aws_vpc.lab_vpc.id
   target_type          = "ip"
   protocol             = "TCP"
@@ -184,7 +184,7 @@ resource "aws_lb_listener" "ext_6443" {
 }
 
 resource "aws_lb_target_group" "int_tg_6443" {
-  name                 = "${data.external.okd_name.result["name"]}-int-6443"
+  name                 = "${var.cluster_name}-int-6443"
   vpc_id               = aws_vpc.lab_vpc.id
   target_type          = "ip"
   protocol             = "TCP"
@@ -216,7 +216,7 @@ resource "aws_lb_listener" "int_6443" {
 }
 
 resource "aws_lb_target_group" "int_tg_22623" {
-  name                 = "${data.external.okd_name.result["name"]}-int-22623"
+  name                 = "${var.cluster_name}-int-22623"
   vpc_id               = aws_vpc.lab_vpc.id
   target_type          = "ip"
   protocol             = "TCP"
@@ -250,21 +250,21 @@ resource "aws_lb_listener" "int_22623" {
 # Route53
 
 resource "aws_route53_zone" "private_zone" {
-  name = "${var.okd_name}.${var.domain}"
+  name = "${var.cluster_name}.${var.public_domain}"
 
   vpc {
     vpc_id = aws_vpc.lab_vpc.id
   }
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}-int"
+    Name = "${var.cluster_name}-private_zone"
     "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "owned"
     Lab  = "okd4"
   }
 }
 
 data "aws_route53_zone" "private" {
-  name         = "${var.okd_name}.${var.domain}"
+  name         = "${var.cluster_name}.${var.public_domain}"
   private_zone = true
 
   depends_on = [
@@ -297,13 +297,13 @@ resource "aws_route53_record" "api-int" {
 }
 
 data "aws_route53_zone" "public" {
-  name         = var.domain
+  name         = var.public_domain
   private_zone = false
 }
 
 resource "aws_route53_record" "api-ext" {
   zone_id = data.aws_route53_zone.public.zone_id
-  name    = "api.${var.okd_name}.${data.aws_route53_zone.public.name}"
+  name    = "api.${var.cluster_name}.${data.aws_route53_zone.public.name}"
   type    = "A"
 
   alias {
@@ -348,6 +348,11 @@ module "okd" {
   vpc_id            = aws_vpc.lab_vpc.id
   vpc_cidr          = var.vpc_cidr
   vpc_subnet        = [aws_subnet.az1_subnet.id]
+  private_domain    = data.aws_route53_zone.private.name
+  private_domain_id = data.aws_route53_zone.private.zone_id
+  public_domain     = data.aws_route53_zone.public.name
+  public_domain_id  = data.aws_route53_zone.public.zone_id
+  cluster_name      = var.cluster_name
   okd_name          = data.external.okd_name.result["name"]
   ext_tg_6443       = aws_lb_target_group.ext_tg_6443.arn
   int_tg_6443       = aws_lb_target_group.int_tg_6443.arn

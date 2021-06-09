@@ -13,10 +13,29 @@ data "aws_ami" "fcos_ami" {
   }
 }
 
+# Route53
+
+resource "aws_route53_record" "etcd" {
+  count   = length(aws_instance.okd-master)
+  zone_id = var.private_domain_id
+  name    = "etcd-${count.index}.${var.private_domain}"
+  type    = "A"
+  ttl     = "60"
+  records = [ aws_instance.okd-master[count.index].private_ip ]
+}
+
+resource "aws_route53_record" "etcd-srv" {
+  zone_id = var.private_domain_id
+  name    = "_etcd-server-ssl._tcp.${var.private_domain}"
+  type    = "SRV"
+  ttl     = "60"
+  records = [for name in aws_route53_record.etcd : "0 10 2380 ${name.fqdn}"]
+}
+
 # Security Groups
 
 resource "aws_security_group" "okd_bootstrap_sg" {
-  name   = "${var.okd_name}_bootstrap_sg"
+  name   = "${var.cluster_name}_bootstrap_sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -48,13 +67,13 @@ resource "aws_security_group" "okd_bootstrap_sg" {
   }
 
   tags = {
-    Name = "${var.okd_name}_bootstrap_sg"
+    Name = "${var.cluster_name}_bootstrap_sg"
     Lab  = "okd4"
   }
 }
 
 resource "aws_security_group" "okd_cluster_sg" {
-  name   = "${var.okd_name}_cluster_sg"
+  name   = "${var.cluster_name}_cluster_sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -79,7 +98,7 @@ resource "aws_security_group" "okd_cluster_sg" {
   }
 
   tags = {
-    Name = "${var.okd_name}_cluster_sg"
+    Name = "${var.cluster_name}_cluster_sg"
     Lab  = "okd4"
   }
 }
@@ -87,12 +106,12 @@ resource "aws_security_group" "okd_cluster_sg" {
 # S3
 
 resource "aws_s3_bucket" "okd-infra" {
-  bucket        = "${var.okd_name}-infra"
+  bucket        = "${var.cluster_name}-infra"
   acl           = "private"
   force_destroy = true
 
   tags = {
-    Name = "${var.okd_name}-infra"
+    Name = "${var.cluster_name}-infra"
     Lab  = "okd4"
   }
 }
@@ -135,12 +154,12 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 }
 
 resource "aws_iam_role" "bootstrap-iam-role" {
-  name = "${var.okd_name}-bootstrap-iam-role"
+  name = "${var.cluster_name}-bootstrap-iam-role"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
   path = "/"
 
   inline_policy {
-    name = "${var.okd_name}-bootstrap-policy"
+    name = "${var.cluster_name}-bootstrap-policy"
 
     policy = jsonencode({
       Version = "2012-10-17"
@@ -166,7 +185,7 @@ resource "aws_iam_role" "bootstrap-iam-role" {
 }
 
 resource "aws_iam_instance_profile" "bootstrap_profile" {
-  name = "${var.okd_name}-bootstrap-iam-profile"
+  name = "${var.cluster_name}-bootstrap-iam-profile"
   role = aws_iam_role.bootstrap-iam-role.name
 }
 
@@ -174,7 +193,7 @@ resource "aws_iam_instance_profile" "bootstrap_profile" {
 
 locals {
   bootstrap-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
   })
 }
 
@@ -226,7 +245,7 @@ resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
 
 locals {
   master-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign"}},"version":"3.2.0"}
   })
 }
 
@@ -277,7 +296,7 @@ resource "aws_lb_target_group_attachment" "master-int-22623" {
 
 locals {
   worker-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign"}},"version":"3.2.0"}
   })
 }
 

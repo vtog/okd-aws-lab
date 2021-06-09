@@ -17,6 +17,6 @@ master_count     = 3
 worker_inst_type = "m5.2xlarge"
 worker_count     = 2
 
-domain = "tognaci.com"
-okd_name = "okd-terra"
+public_domain = "tognaci.com"
+cluster_name  = "okd-terra"
 

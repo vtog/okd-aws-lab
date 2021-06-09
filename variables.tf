@@ -18,10 +18,6 @@ data "http" "myIP" {
   url = "https://api.ipify.org/"
 }
 
-data "external" "okd_name" {
-  program = ["bash", "scripts/get_okd_name.sh"]
-}
-
 variable "key_name" {
 }
 
@@ -40,9 +36,13 @@ variable "worker_inst_type" {
 variable "worker_count" {
 }
 
-variable "domain" {
+variable "public_domain" {
 }
 
-variable "okd_name" {
+variable "cluster_name" {
+}
+
+data "external" "okd_name" {
+  program = ["bash", "scripts/get_okd_name.sh"]
 }
 
