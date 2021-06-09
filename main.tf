@@ -251,13 +251,14 @@ resource "aws_lb_listener" "int_22623" {
 
 resource "aws_route53_zone" "private_zone" {
   name = "${var.cluster_name}.${var.public_domain}"
+  force_destroy = true
 
   vpc {
     vpc_id = aws_vpc.lab_vpc.id
   }
 
   tags = {
-    Name = "${var.cluster_name}-private_zone"
+    Name = "${data.external.okd_name.result["name"]}-int"
     "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "owned"
     Lab  = "okd4"
   }

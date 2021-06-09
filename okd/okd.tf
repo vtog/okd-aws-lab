@@ -29,7 +29,7 @@ resource "aws_route53_record" "etcd-srv" {
   name    = "_etcd-server-ssl._tcp.${var.private_domain}"
   type    = "SRV"
   ttl     = "60"
-  records = [for name in aws_route53_record.etcd : "0 10 2380 ${name.fqdn}"]
+  records = [ for name in aws_route53_record.etcd : "0 10 2380 ${name.fqdn}" ]
 }
 
 # Security Groups
