@@ -33,6 +33,13 @@ resource "aws_security_group" "okd_bootstrap_sg" {
     cidr_blocks = [var.myIP]
   }
 
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -46,8 +53,8 @@ resource "aws_security_group" "okd_bootstrap_sg" {
   }
 }
 
-resource "aws_security_group" "okd_master_sg" {
-  name   = "${var.okd_name}_master_sg"
+resource "aws_security_group" "okd_cluster_sg" {
+  name   = "${var.okd_name}_cluster_sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -72,38 +79,7 @@ resource "aws_security_group" "okd_master_sg" {
   }
 
   tags = {
-    Name = "${var.okd_name}_master_sg"
-    Lab  = "okd4"
-  }
-}
-
-resource "aws_security_group" "okd_worker_sg" {
-  name   = "${var.okd_name}_worker_sg"
-  vpc_id = var.vpc_id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.myIP]
-  }
-  
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.okd_name}_worker_sg"
+    Name = "${var.okd_name}_cluster_sg"
     Lab  = "okd4"
   }
 }
@@ -207,7 +183,7 @@ resource "aws_instance" "okd-bootstrap" {
   instance_type          = "m5.large"
   count                  = 1
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_master_sg.id]
+  vpc_security_group_ids = [aws_security_group.okd_bootstrap_sg.id]
   subnet_id              = var.vpc_subnet[0]
   iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
   user_data              = local.bootstrap-ign
@@ -259,7 +235,7 @@ resource "aws_instance" "okd-master" {
   instance_type          = var.master_inst_type
   count                  = var.master_count
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_master_sg.id]
+  vpc_security_group_ids = [aws_security_group.okd_cluster_sg.id]
   subnet_id              = var.vpc_subnet[0]
   iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
   #private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
@@ -310,7 +286,7 @@ resource "aws_instance" "okd-worker" {
   instance_type          = var.worker_inst_type
   count                  = var.worker_count
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_worker_sg.id]
+  vpc_security_group_ids = [aws_security_group.okd_cluster_sg.id]
   subnet_id              = var.vpc_subnet[0]
   iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
   #private_ip             = "${lookup(var.okd_ips,count.index + 4)}"

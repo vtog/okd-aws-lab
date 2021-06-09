@@ -257,7 +257,9 @@ resource "aws_route53_zone" "private_zone" {
   }
 
   tags = {
-    Lab = "okd4"
+    Name = "${data.external.okd_name.result["name"]}-int"
+    "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "owned"
+    Lab  = "okd4"
   }
 }
 
