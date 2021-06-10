@@ -27,6 +27,6 @@ networking:
 platform:
   aws:
     region: us-west-2
-publish: External
+publish: Internal
 pullSecret: '{"auths":{"fake":{"auth":"aWQ6cGFzcwo="}}}'
 sshKey: |
