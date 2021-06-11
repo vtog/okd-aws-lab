@@ -21,6 +21,7 @@ printf '  ' >> ./install/install-config.yaml && cat ~/.ssh/id_rsa.pub >> ./insta
 
 rm -f install/openshift/99_openshift-cluster-api_master-machines-*.yaml
 rm -f install/openshift/99_openshift-cluster-api_worker-machineset-*.yaml
+cp ./okd/install/cluster-ingress-default-ingresscontroller.yaml install/manifests/cluster-ingress-default-ingresscontroller.yaml
 sed -i 's/mastersSchedulable: false/mastersSchedulable: true/' install/manifests/cluster-scheduler-02-config.yml
 
 ./openshift-install create ignition-configs --dir=install
