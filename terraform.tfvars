@@ -1,5 +1,5 @@
 aws_profile = "default"
-aws_region  = "us-west-2"
+aws_region  = "us-east-2"
 
 vpc_cidr = "10.0.0.0/16"
 
@@ -17,6 +17,6 @@ master_count     = 3
 worker_inst_type = "m5.2xlarge"
 worker_count     = 2
 
-public_domain = "tognaci.com"
+public_domain = "vtogf5.net"
 cluster_name  = "okd-terra"
 

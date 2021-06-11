@@ -106,12 +106,12 @@ resource "aws_security_group" "okd_cluster_sg" {
 # S3
 
 resource "aws_s3_bucket" "okd-infra" {
-  bucket        = "${var.cluster_name}-infra"
+  bucket        = "${var.okd_name}-infra"
   acl           = "private"
   force_destroy = true
 
   tags = {
-    Name = "${var.cluster_name}-infra"
+    Name = "${var.okd_name}-infra"
     Lab  = "okd4"
   }
 }
@@ -198,7 +198,7 @@ resource "aws_iam_instance_profile" "bootstrap_profile" {
 
 locals {
   bootstrap-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
   })
 }
 
@@ -250,7 +250,7 @@ resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
 
 locals {
   master-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign"}},"version":"3.2.0"}
   })
 }
 
@@ -270,6 +270,10 @@ resource "aws_instance" "okd-master" {
     volume_size           = 100
     delete_on_termination = true
   }
+
+  depends_on = [
+    aws_instance.okd-bootstrap
+  ]
 
   tags = {
     Name = "okd-master-${count.index + 1}"
@@ -301,7 +305,7 @@ resource "aws_lb_target_group_attachment" "master-int-22623" {
 
 locals {
   worker-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.cluster_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign"}},"version":"3.2.0"}
+    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign"}},"version":"3.2.0"}
   })
 }
 
@@ -320,6 +324,11 @@ resource "aws_instance" "okd-worker" {
     volume_size           = 100
     delete_on_termination = true
   }
+
+  depends_on = [
+    aws_instance.okd-master
+  ]
+
   tags = {
     Name = "okd-worker-${count.index + 1}"
     Lab  = "okd4"
