@@ -14,16 +14,14 @@ else
 fi
 
 cp  ./okd/install/install-config.yaml ./install/install-config.yaml
-
 printf '  ' >> ./install/install-config.yaml && cat ~/.ssh/id_rsa.pub >> ./install/install-config.yaml
 
 ./openshift-install create install-config --dir=install
-
 ./openshift-install create manifests --dir=install
 
 rm -f install/openshift/99_openshift-cluster-api_master-machines-*.yaml
-
 rm -f install/openshift/99_openshift-cluster-api_worker-machineset-*.yaml
+sed -i 's/mastersSchedulable: false/mastersSchedulable: true/' install/manifests/cluster-scheduler-02-config.yml
 
 ./openshift-install create ignition-configs --dir=install
 
