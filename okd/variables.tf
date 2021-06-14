@@ -59,6 +59,12 @@ variable "int_tg_6443" {
 variable "int_tg_22623" {
 }
 
+variable "ext_tg_80" {
+}
+
+variable "ext_tg_443" {
+}
+
 variable "okd_ips" {
   default = {
     "0" = "10.1.1.20"

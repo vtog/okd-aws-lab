@@ -228,7 +228,7 @@ resource "aws_instance" "okd-bootstrap" {
 
   tags = {
     Name = "okd-bootstrap"
-    Lab  = "Containers"
+    Lab  = "okd4"
   }
 }
 
@@ -339,6 +339,20 @@ resource "aws_instance" "okd-worker" {
     Lab                                     = "okd4"
     "kubernetes.io/cluster/${var.okd_name}" = "shared"
   }
+}
+
+resource "aws_lb_target_group_attachment" "worker-ext-80" {
+  count            = length(aws_instance.okd-worker)
+  target_group_arn = var.ext_tg_80
+  target_id        = aws_instance.okd-worker[count.index].private_ip
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "worker-ext-443" {
+  count            = length(aws_instance.okd-worker)
+  target_group_arn = var.ext_tg_443
+  target_id        = aws_instance.okd-worker[count.index].private_ip
+  port             = 443
 }
 
 #-------- okd output --------

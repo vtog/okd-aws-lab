@@ -63,24 +63,24 @@ resource "aws_route_table_association" "az1_assoc" {
   route_table_id = aws_route_table.lab_public_rt.id
 }
 
+# Endpoints
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.lab_vpc.id
+  service_name = "com.amazonaws.${var.aws_region}.s3"
+  route_table_ids = ["${aws_route_table.lab_public_rt.id}"]
+
+  tags = {
+    Name = "${var.cluster_name}_s3endpoint"
+    Lab  = "okd4"
+  }
+}
+
 # Network load balancers
 
 resource "aws_lb" "ext_lb" {
   name               = "${var.cluster_name}-extlb"
   internal           = false
-  load_balancer_type = "network"
-  subnets            = aws_subnet.az1_subnet.*.id
-
-  enable_deletion_protection = false
-
-  tags = {
-    Lab = "okd4"
-  }
-}
-
-resource "aws_lb" "int_lb" {
-  name               = "${var.cluster_name}-intlb"
-  internal           = true
   load_balancer_type = "network"
   subnets            = aws_subnet.az1_subnet.*.id
 
@@ -120,6 +120,71 @@ resource "aws_lb_listener" "ext_6443" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ext_tg_6443.arn
+  }
+}
+
+resource "aws_lb_target_group" "ext_tg_443" {
+  name                 = "${var.cluster_name}-ext-443"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 443
+  deregistration_delay = 60
+
+  health_check {
+    enabled             = true
+    port                = 443
+    protocol            = "TCP"
+  }
+}
+
+resource "aws_lb_listener" "ext_443" {
+  load_balancer_arn = aws_lb.ext_lb.arn
+  port              = "443"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ext_tg_443.arn
+  }
+}
+
+resource "aws_lb_target_group" "ext_tg_80" {
+  name                 = "${var.cluster_name}-ext-80"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 80
+  deregistration_delay = 60
+
+  health_check {
+    enabled             = true
+    port                = 80
+    protocol            = "TCP"
+  }
+}
+
+resource "aws_lb_listener" "ext_80" {
+  load_balancer_arn = aws_lb.ext_lb.arn
+  port              = "80"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ext_tg_80.arn
+  }
+}
+
+resource "aws_lb" "int_lb" {
+  name               = "${var.cluster_name}-intlb"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = aws_subnet.az1_subnet.*.id
+
+  enable_deletion_protection = false
+
+  tags = {
+    Lab = "okd4"
   }
 }
 
@@ -245,6 +310,22 @@ resource "aws_route53_record" "api-int" {
   }
 }
 
+resource "aws_route53_record" "apps-int" {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = "*.apps.${data.aws_route53_zone.private.name}"
+  type    = "A"
+
+  depends_on = [
+    aws_lb.ext_lb
+  ]
+
+  alias {
+    name                   = aws_lb.ext_lb.dns_name
+    zone_id                = aws_lb.ext_lb.zone_id
+    evaluate_target_health = false
+  }
+}
+
 data "aws_route53_zone" "public" {
   name         = var.public_domain
   private_zone = false
@@ -253,6 +334,22 @@ data "aws_route53_zone" "public" {
 resource "aws_route53_record" "api-ext" {
   zone_id = data.aws_route53_zone.public.zone_id
   name    = "api.${var.cluster_name}.${data.aws_route53_zone.public.name}"
+  type    = "A"
+
+  depends_on = [
+    aws_lb.ext_lb
+  ]
+
+  alias {
+    name                   = aws_lb.ext_lb.dns_name
+    zone_id                = aws_lb.ext_lb.zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "apps-ext" {
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = "*.apps.${var.cluster_name}.${data.aws_route53_zone.public.name}"
   type    = "A"
 
   depends_on = [
@@ -310,5 +407,7 @@ module "okd" {
   ext_tg_6443       = aws_lb_target_group.ext_tg_6443.arn
   int_tg_6443       = aws_lb_target_group.int_tg_6443.arn
   int_tg_22623      = aws_lb_target_group.int_tg_22623.arn
+  ext_tg_80         = aws_lb_target_group.ext_tg_80.arn
+  ext_tg_443        = aws_lb_target_group.ext_tg_443.arn
 }
 
