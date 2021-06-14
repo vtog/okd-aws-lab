@@ -15,7 +15,7 @@ public_key_path = "~/.ssh/id_rsa.pub"
 master_inst_type = "m5.xlarge"
 master_count     = 3
 worker_inst_type = "m5.2xlarge"
-worker_count     = 2
+worker_count     = 0
 
 public_domain = "vtogf5.net"
 cluster_name  = "okd-terra"

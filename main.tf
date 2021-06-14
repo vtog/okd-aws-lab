@@ -25,9 +25,9 @@ resource "aws_subnet" "az1_subnet" {
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "${var.cluster_name}_az1"
+    Name                                                             = "${var.cluster_name}_az1"
     "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "shared"
-    Lab  = "okd4"
+    Lab                                                              = "okd4"
   }
 }
 
@@ -190,7 +190,7 @@ resource "aws_lb_listener" "int_22623" {
 # Route53
 
 resource "aws_route53_zone" "private_zone" {
-  name = "${var.cluster_name}.${var.public_domain}"
+  name          = "${var.cluster_name}.${var.public_domain}"
   force_destroy = true
 
   vpc {
@@ -198,9 +198,9 @@ resource "aws_route53_zone" "private_zone" {
   }
 
   tags = {
-    Name = "${data.external.okd_name.result["name"]}-int"
+    Name                                                             = "${data.external.okd_name.result["name"]}-int"
     "kubernetes.io/cluster/${data.external.okd_name.result["name"]}" = "owned"
-    Lab  = "okd4"
+    Lab                                                              = "okd4"
   }
 }
 

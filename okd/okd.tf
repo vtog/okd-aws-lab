@@ -21,7 +21,7 @@ resource "aws_route53_record" "etcd" {
   name    = "etcd-${count.index}.${var.private_domain}"
   type    = "A"
   ttl     = "60"
-  records = [ aws_instance.okd-master[count.index].private_ip ]
+  records = [aws_instance.okd-master[count.index].private_ip]
 }
 
 resource "aws_route53_record" "etcd-srv" {
@@ -29,7 +29,7 @@ resource "aws_route53_record" "etcd-srv" {
   name    = "_etcd-server-ssl._tcp.${var.private_domain}"
   type    = "SRV"
   ttl     = "60"
-  records = [ for name in aws_route53_record.etcd : "0 10 2380 ${name.fqdn}" ]
+  records = [for name in aws_route53_record.etcd : "0 10 2380 ${name.fqdn}"]
 }
 
 # Security Groups
@@ -154,9 +154,9 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 }
 
 resource "aws_iam_role" "bootstrap-iam-role" {
-  name = "${var.cluster_name}-bootstrap-iam-role"
+  name               = "${var.cluster_name}-bootstrap-iam-role"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
-  path = "/"
+  path               = "/"
 
   inline_policy {
     name = "${var.cluster_name}-bootstrap-policy"
@@ -203,7 +203,7 @@ resource "aws_iam_instance_profile" "bootstrap_profile" {
 
 locals {
   bootstrap-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign"}},"version":"3.2.0"}
+    "ignition" : { "config" : { "replace" : { "source" : "https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/bootstrap.ign" } }, "version" : "3.2.0" }
   })
 }
 
@@ -255,7 +255,7 @@ resource "aws_lb_target_group_attachment" "bootstrap-int-22623" {
 
 locals {
   master-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign"}},"version":"3.2.0"}
+    "ignition" : { "config" : { "replace" : { "source" : "https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/master.ign" } }, "version" : "3.2.0" }
   })
 }
 
@@ -269,7 +269,7 @@ resource "aws_instance" "okd-master" {
   iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
   #private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
   associate_public_ip_address = true
-  user_data              = local.master-ign
+  user_data                   = local.master-ign
 
   root_block_device {
     volume_size           = 100
@@ -281,8 +281,8 @@ resource "aws_instance" "okd-master" {
   ]
 
   tags = {
-    Name = "okd-master-${count.index + 1}"
-    Lab  = "okd4"
+    Name                                    = "okd-master-${count.index + 1}"
+    Lab                                     = "okd4"
     "kubernetes.io/cluster/${var.okd_name}" = "shared"
   }
 }
@@ -310,7 +310,7 @@ resource "aws_lb_target_group_attachment" "master-int-22623" {
 
 locals {
   worker-ign = jsonencode({
-    "ignition":{"config":{"replace":{"source":"https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign"}},"version":"3.2.0"}
+    "ignition" : { "config" : { "replace" : { "source" : "https://${var.okd_name}-infra.s3-${var.aws_region}.amazonaws.com/worker.ign" } }, "version" : "3.2.0" }
   })
 }
 
@@ -323,7 +323,7 @@ resource "aws_instance" "okd-worker" {
   subnet_id              = var.vpc_subnet[0]
   iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
   #private_ip             = "${lookup(var.okd_ips,count.index + 4)}"
-  user_data              = local.worker-ign
+  user_data = local.worker-ign
 
   root_block_device {
     volume_size           = 100
@@ -335,8 +335,8 @@ resource "aws_instance" "okd-worker" {
   ]
 
   tags = {
-    Name = "okd-worker-${count.index + 1}"
-    Lab  = "okd4"
+    Name                                    = "okd-worker-${count.index + 1}"
+    Lab                                     = "okd4"
     "kubernetes.io/cluster/${var.okd_name}" = "shared"
   }
 }
