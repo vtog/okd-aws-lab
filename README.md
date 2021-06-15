@@ -1,8 +1,8 @@
-# okd-aws-lab
+# Create OKD v4 (UPI) deployment with Terraform.
 
-Create OKD v4 (UPI) deployment with Terraform.
+The whole process will take ~30m.
+I'm assuming Linux client (Required: awscli, jq, terraform)
 
-Required (assuming linux cli)
   1. Configure aws credentials "default" profile (~/.aws/credentials)
   2. Clone this repo
   3. Download latest "client & "install" from github https://github.com/openshift/okd/releases
@@ -18,6 +18,6 @@ Required (assuming linux cli)
   11. Once worker nodes are up you'll need to approve the csr. Wait to see
       "Pending" and run the following command. This will need to be done twice.
       - oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' | xargs --no-run-if-empty oc adm certificate approve
-  13. Watch for cluster operators to deploy (Time ~30m)
-      - oc get co
+  12. Watch for cluster operators to deploy (Time ~30m)
+      - watch -n3 oc get co
   
