@@ -63,19 +63,6 @@ resource "aws_route_table_association" "az1_assoc" {
   route_table_id = aws_route_table.lab_public_rt.id
 }
 
-# Endpoints
-
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id       = aws_vpc.lab_vpc.id
-  service_name = "com.amazonaws.${var.aws_region}.s3"
-  route_table_ids = ["${aws_route_table.lab_public_rt.id}"]
-
-  tags = {
-    Name = "${var.cluster_name}_s3endpoint"
-    Lab  = "okd4"
-  }
-}
-
 # Network load balancers
 
 resource "aws_lb" "ext_lb" {
