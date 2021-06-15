@@ -153,13 +153,13 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
   }
 }
 
-resource "aws_iam_role" "bootstrap-iam-role" {
-  name               = "${var.cluster_name}-bootstrap-iam-role"
+resource "aws_iam_role" "okd-iam-role" {
+  name               = "${var.cluster_name}-okd-iam-role"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
   path               = "/"
 
   inline_policy {
-    name = "${var.cluster_name}-bootstrap-policy"
+    name = "${var.cluster_name}-okd-policy"
 
     policy = jsonencode({
       Version = "2012-10-17"
@@ -169,34 +169,14 @@ resource "aws_iam_role" "bootstrap-iam-role" {
           Effect   = "Allow"
           Resource = "*"
         },
-        {
-          Action   = ["elasticloadbalancing:*"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-        {
-          Action   = ["s3:*"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-        {
-          Action   = ["route53:*"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
-        {
-          Action   = ["kms:DescribeKey"]
-          Effect   = "Allow"
-          Resource = "*"
-        },
       ]
     })
   }
 }
 
-resource "aws_iam_instance_profile" "bootstrap_profile" {
-  name = "${var.cluster_name}-bootstrap-iam-profile"
-  role = aws_iam_role.bootstrap-iam-role.name
+resource "aws_iam_instance_profile" "okd_profile" {
+  name = "${var.cluster_name}-okd-iam-profile"
+  role = aws_iam_role.okd-iam-role.name
 }
 
 # EC2
@@ -208,14 +188,15 @@ locals {
 }
 
 resource "aws_instance" "okd-bootstrap" {
-  ami                    = data.aws_ami.fcos_ami.id
-  instance_type          = "m5.large"
-  count                  = 1
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_bootstrap_sg.id]
-  subnet_id              = var.vpc_subnet[0]
-  iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
-  user_data              = local.bootstrap-ign
+  ami                         = data.aws_ami.fcos_ami.id
+  instance_type               = "m5.large"
+  count                       = 1
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [aws_security_group.okd_bootstrap_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.okd_profile.name
+  subnet_id                   = var.vpc_subnet[0]
+  associate_public_ip_address = true
+  user_data                   = local.bootstrap-ign
 
   root_block_device {
     volume_size           = 100
@@ -260,15 +241,15 @@ locals {
 }
 
 resource "aws_instance" "okd-master" {
-  ami                    = data.aws_ami.fcos_ami.id
-  instance_type          = var.master_inst_type
-  count                  = var.master_count
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_cluster_sg.id]
-  subnet_id              = var.vpc_subnet[0]
-  iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
-  #private_ip             = "${lookup(var.okd_ips,count.index + 1)}"
+  ami                         = data.aws_ami.fcos_ami.id
+  instance_type               = var.master_inst_type
+  count                       = var.master_count
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [aws_security_group.okd_cluster_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.okd_profile.name
+  subnet_id                   = var.vpc_subnet[0]
   associate_public_ip_address = true
+  #private_ip                  = "${lookup(var.okd_ips,count.index + 1)}"
   user_data                   = local.master-ign
 
   root_block_device {
@@ -315,15 +296,16 @@ locals {
 }
 
 resource "aws_instance" "okd-worker" {
-  ami                    = data.aws_ami.fcos_ami.id
-  instance_type          = var.worker_inst_type
-  count                  = var.worker_count
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.okd_cluster_sg.id]
-  subnet_id              = var.vpc_subnet[0]
-  iam_instance_profile   = aws_iam_instance_profile.bootstrap_profile.name
-  #private_ip             = "${lookup(var.okd_ips,count.index + 4)}"
-  user_data = local.worker-ign
+  ami                         = data.aws_ami.fcos_ami.id
+  instance_type               = var.worker_inst_type
+  count                       = var.worker_count
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [aws_security_group.okd_cluster_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.okd_profile.name
+  subnet_id                   = var.vpc_subnet[0]
+  associate_public_ip_address = true
+  #private_ip                  = "${lookup(var.okd_ips,count.index + 4)}"
+  user_data                   = local.worker-ign
 
   root_block_device {
     volume_size           = 100
