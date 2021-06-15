@@ -11,7 +11,7 @@ Required (assuming linux cli)
   6. Run "./setup_ignition.sh"
   7. Run "terraform init"
   8. Run "terraform apply -auto-approve"
-  9. export KUBECONFIG=/<path-to-clone>/install/auth/kubeconfig
+  9. export KUBECONFIG=/\<path-to-clone\>/install/auth/kubeconfig
   10. Monitor process (Time ~15m)
       - oc get nodes
       - oc get csr
