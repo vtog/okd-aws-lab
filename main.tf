@@ -119,9 +119,9 @@ resource "aws_lb_target_group" "ext_tg_443" {
   deregistration_delay = 60
 
   health_check {
-    enabled             = true
-    port                = 443
-    protocol            = "TCP"
+    enabled  = true
+    port     = 443
+    protocol = "TCP"
   }
 }
 
@@ -145,9 +145,9 @@ resource "aws_lb_target_group" "ext_tg_80" {
   deregistration_delay = 60
 
   health_check {
-    enabled             = true
-    port                = 80
-    protocol            = "TCP"
+    enabled  = true
+    port     = 80
+    protocol = "TCP"
   }
 }
 

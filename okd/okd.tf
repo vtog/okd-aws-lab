@@ -250,7 +250,7 @@ resource "aws_instance" "okd-master" {
   subnet_id                   = var.vpc_subnet[0]
   associate_public_ip_address = true
   #private_ip                  = "${lookup(var.okd_ips,count.index + 1)}"
-  user_data                   = local.master-ign
+  user_data = local.master-ign
 
   root_block_device {
     volume_size           = 100
@@ -305,7 +305,7 @@ resource "aws_instance" "okd-worker" {
   subnet_id                   = var.vpc_subnet[0]
   associate_public_ip_address = true
   #private_ip                  = "${lookup(var.okd_ips,count.index + 4)}"
-  user_data                   = local.worker-ign
+  user_data = local.worker-ign
 
   root_block_device {
     volume_size           = 100
