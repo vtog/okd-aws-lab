@@ -17,6 +17,6 @@ master_count     = 3
 worker_inst_type = "m5.2xlarge"
 worker_count     = 2
 
-public_domain = "vtogf5.net"
+public_domain = "tognaci.com"
 cluster_name  = "okd-terra"
 
