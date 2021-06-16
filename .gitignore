@@ -30,6 +30,6 @@ override.tf.json
 # example: *tfplan*
 
 .vscode
-install/*
+ignition/*
 openshift*.gz
 openshift-install
