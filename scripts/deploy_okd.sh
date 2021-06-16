@@ -1,9 +1,12 @@
 #!/bin/bash
 
 if [[ ! -f $PWD/openshift-install ]]; then
-    tar -xzvf openshift-install-linux-4.7.0-0.okd-2021-04-24-103438.tar.gz --exclude='README.md'
+    #tar -xzvf openshift-install-linux-4.7.0-0.okd-2021-04-24-103438.tar.gz --exclude='README.md'
+    printf "\nDownload and extract the openshift installer for Linux before continuing!"
+    printf "\nhttps://github.com/openshift/okd/releases\n"
+    exit
 else
-    echo "Openshift installer already extracted!"
+    printf "\nOpenshift installer found!\n\n"
 fi
 
 if [[ -d $PWD/ignition ]]; then
