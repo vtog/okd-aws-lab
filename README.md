@@ -6,12 +6,12 @@ I'm assuming Linux client (Required: awscli, jq, terraform)
   1. Configure your aws credentials using "default" profile (~/.aws/credentials)
   2. Clone this repo
   3. Download latest okd "client & "install" from github https://github.com/openshift/okd/releases
-  4. Untar both files in root of clone
-  5. Copy "oc" & "kubectl" to "/usr/local/bin"
-  6. Run "./scripts/okd_deploy.sh
+  4. Untar both files in root of clone repo
+  5. Move "oc" & "kubectl" to "/usr/local/bin"
+  6. Run "./scripts/okd_deploy.sh"
   7. Run "terraform init"
   8. Run "terraform apply -auto-approve"
-  9. export KUBECONFIG=$PWD/ignition/auth/kubeconfig
+  9. "export KUBECONFIG=$PWD/ignition/auth/kubeconfig"
   10. Monitor process for control nodes to go active. (Time ~15m)
       - oc get nodes
       - oc get csr
