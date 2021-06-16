@@ -11,9 +11,10 @@ I'm assuming Linux client (Required: awscli, jq, terraform)
      - "public_domain" in ./terraform.tfvars
      - "baseDomain" in ./okd/ignition/install-config.yaml
   6. Download latest okd "client & "install" from github https://github.com/openshift/okd/releases
+     - For corp account use "4.7.0-0.okd-2021-05-22-050008", newer version don't like session tokens.
   7. Untar both files in root of clone repo
   8. Move "oc" & "kubectl" to "/usr/local/bin"
-  9. Run "./scripts/okd_deploy.sh"
+  9.  Run "./scripts/okd_deploy.sh"
   10. Run "terraform init"
   11. Run "terraform apply -auto-approve"
   12. "export KUBECONFIG=$PWD/ignition/auth/kubeconfig"
