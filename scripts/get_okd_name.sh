@@ -1,5 +1,5 @@
 #!/bin/bash
 
-name=$(jq .infraID ./install/metadata.json)
+name=$(jq .infraID ./ignition/metadata.json)
 
 echo -n "{\"name\":${name}}"
