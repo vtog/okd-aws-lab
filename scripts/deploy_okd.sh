@@ -25,6 +25,7 @@ $PWD/openshift-install create manifests --dir=ignition
 rm -f $PWD/ignition/openshift/99_openshift-cluster-api_master-machines-*.yaml
 rm -f $PWD/ignition/openshift/99_openshift-cluster-api_worker-machineset-*.yaml
 cp $PWD/okd/ignition/cluster-ingress-default-ingresscontroller.yaml $PWD/ignition/manifests/cluster-ingress-default-ingresscontroller.yaml
+cp $PWD/okd/ignition/cluster-dns-02-config.yml $PWD/ignition/manifests/cluster-dns-02-config.yml
 #sed -i 's/mastersSchedulable: false/mastersSchedulable: true/' $PWD/ignition/manifests/cluster-scheduler-02-config.yml
 
 $PWD/openshift-install create ignition-configs --dir=ignition
