@@ -119,7 +119,7 @@ resource "aws_s3_bucket" "okd-infra" {
 resource "aws_s3_bucket_object" "copy-bootstrap" {
   bucket       = aws_s3_bucket.okd-infra.id
   key          = "bootstrap.ign"
-  source       = "${path.root}/install/bootstrap.ign"
+  source       = "${path.root}/ignition/bootstrap.ign"
   content_type = "binary/octet-stream"
   acl          = "public-read"
 }
@@ -127,7 +127,7 @@ resource "aws_s3_bucket_object" "copy-bootstrap" {
 resource "aws_s3_bucket_object" "copy-master" {
   bucket       = aws_s3_bucket.okd-infra.id
   key          = "master.ign"
-  source       = "${path.root}/install/master.ign"
+  source       = "${path.root}/ignition/master.ign"
   content_type = "binary/octet-stream"
   acl          = "public-read"
 }
@@ -135,7 +135,7 @@ resource "aws_s3_bucket_object" "copy-master" {
 resource "aws_s3_bucket_object" "copy-worker" {
   bucket       = aws_s3_bucket.okd-infra.id
   key          = "worker.ign"
-  source       = "${path.root}/install/worker.ign"
+  source       = "${path.root}/ignition/worker.ign"
   content_type = "binary/octet-stream"
   acl          = "public-read"
 }
