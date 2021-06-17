@@ -19,6 +19,10 @@ fi
 cp  $PWD/okd/ignition/install-config.yaml $PWD/ignition/install-config.yaml
 printf '  ' >> $PWD/ignition/install-config.yaml && cat ~/.ssh/id_rsa.pub >> $PWD/ignition/install-config.yaml
 
+#ext=$(tr -dc a-z0-9 </dev/urandom | head -c 5 ; echo '')
+#sed -i 's/name: okd-.*/'name:\ okd-"$ext"'/' $PWD/ignition/install-config.yaml
+#sed -i 's/cluster_name.*/'cluster-name\ \ =\ \"okd-"$ext"\"'/' $PWD/terraform.tfvars
+
 $PWD/openshift-install create install-config --dir=ignition
 $PWD/openshift-install create manifests --dir=ignition
 
