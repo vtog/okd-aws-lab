@@ -13,8 +13,8 @@ data "aws_ami" "ubuntu_ami" {
   }
 }
 
-resource "aws_security_group" "svc_mgmt_sg" {
-  name   = "svc_mgmt_sg"
+resource "aws_security_group" "jumpbox_mgmt_sg" {
+  name   = "jumpbox_mgmt_sg"
   vpc_id = var.vpc_id
 
   ingress {
@@ -53,17 +53,17 @@ resource "aws_security_group" "svc_mgmt_sg" {
   }
 
   tags = {
-    Name = "svc_mgmt_sg"
-    Lab  = "Containers"
+    Name = "jumpbox_mgmt_sg"
+    Lab  = "okd4"
   }
 }
 
-resource "aws_instance" "svc" {
+resource "aws_instance" "jumpbox" {
   ami                    = data.aws_ami.ubuntu_ami.id
   instance_type          = "m5.large"
   count                  = 1
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.svc_mgmt_sg.id]
+  vpc_security_group_ids = [aws_security_group.jumpbox_mgmt_sg.id]
   subnet_id              = var.vpc_subnet[0]
 
   root_block_device {
@@ -72,8 +72,8 @@ resource "aws_instance" "svc" {
   }
 
   tags = {
-    Name = "okd4-services"
-    Lab  = "Containers"
+    Name = "okd4-jumpbox"
+    Lab  = "okd4"
   }
 }
 
@@ -81,7 +81,7 @@ resource "aws_instance" "svc" {
 data "template_file" "inventory" {
   template = <<EOF
 [all]
-%{ for instance in aws_instance.svc ~}
+%{ for instance in aws_instance.jumpbox ~}
 ${instance.tags.Name} ansible_host=${instance.public_ip} private_ip=${instance.private_ip}
 %{ endfor ~}
 
@@ -95,16 +95,16 @@ EOF
 resource "local_file" "save_inventory" {
   depends_on = [data.template_file.inventory]
   content = data.template_file.inventory.rendered
-  filename = "./svc/ansible/inventory.ini"
+  filename = "./jumpbox/ansible/inventory.ini"
 }
 
 #----- Run Ansible Playbook -----
 resource "null_resource" "ansible" {
   provisioner "local-exec" {
-    working_dir = "./svc/ansible/"
+    working_dir = "./jumpbox/ansible/"
 
     command = <<EOF
-    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.svc.*.id)}
+    aws ec2 wait instance-status-ok --region ${var.aws_region} --profile ${var.aws_profile} --instance-ids ${join(" ", aws_instance.jumpbox.*.id)}
     ansible-playbook ./playbooks/deploy-services.yaml
     EOF
   }
@@ -112,11 +112,11 @@ resource "null_resource" "ansible" {
 
 #-------- services output --------
 
-output "public_ip" {
-  value = formatlist(
-  "%s = %s",
-  aws_instance.svc.*.tags.Name,
-  aws_instance.svc.*.public_ip
-  )
-}
+#output "public_ip" {
+  #value = formatlist(
+  #"%s = %s",
+  #aws_instance.jumpbox.*.tags.Name,
+  #aws_instance.jumpbox.*.public_ip
+  #)
+#}
 

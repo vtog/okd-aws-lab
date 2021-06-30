@@ -196,6 +196,7 @@ resource "aws_instance" "okd-bootstrap" {
   iam_instance_profile        = aws_iam_instance_profile.okd_profile.name
   subnet_id                   = var.vpc_subnet[0]
   associate_public_ip_address = true
+  #private_ip                  = "${lookup(var.okd_ips,count.index)}"
   user_data                   = local.bootstrap-ign
 
   root_block_device {
