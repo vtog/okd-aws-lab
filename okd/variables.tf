@@ -50,13 +50,19 @@ variable "cluster_name" {
 variable "okd_name" {
 }
 
-variable "ext_tg_6443" {
+variable "int_tg_22623" {
 }
 
 variable "int_tg_6443" {
 }
 
-variable "int_tg_22623" {
+variable "int_tg_80" {
+}
+
+variable "int_tg_443" {
+}
+
+variable "ext_tg_6443" {
 }
 
 variable "ext_tg_80" {

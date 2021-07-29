@@ -338,6 +338,20 @@ resource "aws_lb_target_group_attachment" "worker-ext-443" {
   port             = 443
 }
 
+resource "aws_lb_target_group_attachment" "worker-int-80" {
+  count            = length(aws_instance.okd-worker)
+  target_group_arn = var.int_tg_80
+  target_id        = aws_instance.okd-worker[count.index].private_ip
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "worker-int-443" {
+  count            = length(aws_instance.okd-worker)
+  target_group_arn = var.int_tg_443
+  target_id        = aws_instance.okd-worker[count.index].private_ip
+  port             = 443
+}
+
 #-------- okd output --------
 
 #output "master-public_ip" {

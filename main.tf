@@ -239,6 +239,58 @@ resource "aws_lb_listener" "int_22623" {
   }
 }
 
+resource "aws_lb_target_group" "int_tg_443" {
+  name                 = "${var.cluster_name}-int-443"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 443
+  deregistration_delay = 60
+
+  health_check {
+    enabled  = true
+    port     = 443
+    protocol = "TCP"
+  }
+}
+
+resource "aws_lb_listener" "int_443" {
+  load_balancer_arn = aws_lb.int_lb.arn
+  port              = "443"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.int_tg_443.arn
+  }
+}
+
+resource "aws_lb_target_group" "int_tg_80" {
+  name                 = "${var.cluster_name}-int-80"
+  vpc_id               = aws_vpc.lab_vpc.id
+  target_type          = "ip"
+  protocol             = "TCP"
+  port                 = 80
+  deregistration_delay = 60
+
+  health_check {
+    enabled  = true
+    port     = 80
+    protocol = "TCP"
+  }
+}
+
+resource "aws_lb_listener" "int_80" {
+  load_balancer_arn = aws_lb.int_lb.arn
+  port              = "80"
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.int_tg_80.arn
+  }
+}
+
 # Route53
 
 resource "aws_route53_zone" "private_zone" {
@@ -359,16 +411,16 @@ resource "aws_key_pair" "lab_auth" {
 
 #----- Deploy Services -----
 
-#module "jumpbox" {
-  #source      = "./jumpbox"
-  #aws_region  = var.aws_region
-  #aws_profile = var.aws_profile
-  #myIP        = "${chomp(data.http.myIP.body)}/32"
-  #key_name    = var.key_name
-  #vpc_id      = aws_vpc.lab_vpc.id
-  #vpc_cidr    = var.vpc_cidr
-  #vpc_subnet  = [aws_subnet.az1_subnet.id]
-#}
+module "jumpbox" {
+  source      = "./jumpbox"
+  aws_region  = var.aws_region
+  aws_profile = var.aws_profile
+  myIP        = "${chomp(data.http.myIP.body)}/32"
+  key_name    = var.key_name
+  vpc_id      = aws_vpc.lab_vpc.id
+  vpc_cidr    = var.vpc_cidr
+  vpc_subnet  = [aws_subnet.az1_subnet.id]
+}
 
 #----- Deploy OpenShift -----
 
@@ -391,9 +443,11 @@ module "okd" {
   public_domain_id  = data.aws_route53_zone.public.zone_id
   cluster_name      = var.cluster_name
   okd_name          = data.external.okd_name.result["name"]
-  ext_tg_6443       = aws_lb_target_group.ext_tg_6443.arn
-  int_tg_6443       = aws_lb_target_group.int_tg_6443.arn
   int_tg_22623      = aws_lb_target_group.int_tg_22623.arn
+  int_tg_6443       = aws_lb_target_group.int_tg_6443.arn
+  int_tg_80         = aws_lb_target_group.int_tg_80.arn
+  int_tg_443        = aws_lb_target_group.int_tg_443.arn
+  ext_tg_6443       = aws_lb_target_group.ext_tg_6443.arn
   ext_tg_80         = aws_lb_target_group.ext_tg_80.arn
   ext_tg_443        = aws_lb_target_group.ext_tg_443.arn
 }
