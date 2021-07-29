@@ -14,16 +14,18 @@ I'm assuming Linux client (Required: awscli, jq, terraform)
      - For corp account use "4.7.0-0.okd-2021-05-22-050008", newer version don't like session tokens.
   7. Untar both files in root of clone repo
   8. Move "oc" & "kubectl" to "/usr/local/bin"
-  9.  Run "./scripts/okd_deploy.sh"
-  10. Run "terraform init"
-  11. Run "terraform apply -auto-approve"
-  12. "export KUBECONFIG=$PWD/ignition/auth/kubeconfig"
-  13. Monitor process for control nodes to go active. (Time ~15m)
+  9.  Run "./scripts/deploy_okd.sh"
+  10. Run "terraform init --upgrade"
+  11. run "terraform validate" #validates code
+  12. run "terraform plan" #validates AWS connectivity and object createion
+  13. Run "terraform apply -auto-approve"
+  14. "export KUBECONFIG=$PWD/ignition/auth/kubeconfig"
+  15. Monitor process for control nodes to go active. (Time ~15m)
       - oc get nodes
       - oc get csr
-  14. Once worker nodes are up you'll need to approve their csr. Wait to see
+  16. Once worker nodes are up you'll need to approve their csr. Wait to see
       "Pending" and run the following command. This will need to be done twice.
       - oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' | xargs --no-run-if-empty oc adm certificate approve
-  15. Watch for cluster operators to deploy (Time ~30m)
+  17. Watch for cluster operators to deploy (Time ~30m)
       - watch -n3 oc get co
   

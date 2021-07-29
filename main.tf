@@ -359,16 +359,16 @@ resource "aws_key_pair" "lab_auth" {
 
 #----- Deploy Services -----
 
-module "jumpbox" {
-  source      = "./jumpbox"
-  aws_region  = var.aws_region
-  aws_profile = var.aws_profile
-  myIP        = "${chomp(data.http.myIP.body)}/32"
-  key_name    = var.key_name
-  vpc_id      = aws_vpc.lab_vpc.id
-  vpc_cidr    = var.vpc_cidr
-  vpc_subnet  = [aws_subnet.az1_subnet.id]
-}
+#module "jumpbox" {
+  #source      = "./jumpbox"
+  #aws_region  = var.aws_region
+  #aws_profile = var.aws_profile
+  #myIP        = "${chomp(data.http.myIP.body)}/32"
+  #key_name    = var.key_name
+  #vpc_id      = aws_vpc.lab_vpc.id
+  #vpc_cidr    = var.vpc_cidr
+  #vpc_subnet  = [aws_subnet.az1_subnet.id]
+#}
 
 #----- Deploy OpenShift -----
 
