@@ -16,8 +16,8 @@ I'm assuming Linux client (Required: awscli, jq, terraform)
   8. Move "oc" & "kubectl" to "/usr/local/bin"
   9.  Run "./scripts/deploy_okd.sh"
   10. Run "terraform init --upgrade"
-  11. run "terraform validate" #validates code
-  12. run "terraform plan" #validates AWS connectivity and object createion
+  11. Run "terraform validate" #validates code
+  12. Run "terraform plan" #validates AWS connectivity and object createion
   13. Run "terraform apply -auto-approve"
   14. "export KUBECONFIG=$PWD/ignition/auth/kubeconfig"
   15. Monitor process for control nodes to go active. (Time ~15m)
