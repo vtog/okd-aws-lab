@@ -1,6 +1,7 @@
 ---
 
 - name: Create kube admin dir (ubuntu)
+  become: no
   file:
     dest: /home/ubuntu/.kube/
     owner: ubuntu
@@ -8,19 +9,24 @@
     state: directory
 
 - name: Copy kubeconfig
+  become: no
   copy:
     src: ../../../ignition/auth/kubeconfig
     dest: /home/ubuntu/.kube/config
     mode: 0640
 
 - name: Copy oc client
+  become: no
   copy:
     src: ../../../openshift-client-linux-4.7.0-0.okd-2021-05-22-050008.tar.gz
     dest: /home/ubuntu/openshift-client-linux-4.7.0-0.okd-2021-05-22-050008.tar.gz
     mode: 0644
 
-- name: Extract oc client
-  unarchive:
-    src: /home/ubuntu/openshift-client-linux-4.7.0-0.okd-2021-05-22-050008.tar.gz
-    dst: /usr/local/bin
+- name: Extract okd client
+  command: tar -xzvf /home/ubuntu/openshift-client-linux-4.7.0-0.okd-2021-05-22-050008.tar.gz
 
+- name: Move oc to /usr/local/bin  
+  command: mv /home/ubuntu/oc /usr/local/bin/oc
+
+- name: Move kubectl to /usr/local/bin  
+  command: mv /home/ubuntu/kubectl /usr/local/bin/kubectl
