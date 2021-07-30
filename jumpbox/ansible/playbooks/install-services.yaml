@@ -11,6 +11,5 @@
     - net-tools
     - ntp
     - nginx
-    - bind9
-    - bind9utils
+    - gtar
 

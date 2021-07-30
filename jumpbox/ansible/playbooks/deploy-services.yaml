@@ -6,5 +6,5 @@
   tasks:
   - import_tasks: update-ubuntu.yaml
   - import_tasks: install-services.yaml
-  #- import_tasks: configure-bind.yaml
+  - import_tasks: configure-okd-client.yaml
 
