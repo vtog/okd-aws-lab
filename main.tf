@@ -365,42 +365,42 @@ resource "aws_route53_record" "apps-int" {
   }
 }
 
-data "aws_route53_zone" "public" {
-  name         = var.public_domain
-  private_zone = false
-}
-
-resource "aws_route53_record" "api-ext" {
-  zone_id = data.aws_route53_zone.public.zone_id
-  name    = "api.${var.cluster_name}.${data.aws_route53_zone.public.name}"
-  type    = "A"
-
-  depends_on = [
-    aws_lb.ext_lb
-  ]
-
-  alias {
-    name                   = aws_lb.ext_lb.dns_name
-    zone_id                = aws_lb.ext_lb.zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "apps-ext" {
-  zone_id = data.aws_route53_zone.public.zone_id
-  name    = "*.apps.${var.cluster_name}.${data.aws_route53_zone.public.name}"
-  type    = "A"
-
-  depends_on = [
-    aws_lb.ext_lb
-  ]
-
-  alias {
-    name                   = aws_lb.ext_lb.dns_name
-    zone_id                = aws_lb.ext_lb.zone_id
-    evaluate_target_health = false
-  }
-}
+#data "aws_route53_zone" "public" {
+  #name         = var.public_domain
+  #private_zone = false
+#}
+#
+#resource "aws_route53_record" "api-ext" {
+  #zone_id = data.aws_route53_zone.public.zone_id
+  #name    = "api.${var.cluster_name}.${data.aws_route53_zone.public.name}"
+  #type    = "A"
+#
+  #depends_on = [
+    #aws_lb.ext_lb
+  #]
+#
+  #alias {
+    #name                   = aws_lb.ext_lb.dns_name
+    #zone_id                = aws_lb.ext_lb.zone_id
+    #evaluate_target_health = false
+  #}
+#}
+#
+#resource "aws_route53_record" "apps-ext" {
+  #zone_id = data.aws_route53_zone.public.zone_id
+  #name    = "*.apps.${var.cluster_name}.${data.aws_route53_zone.public.name}"
+  #type    = "A"
+#
+  #depends_on = [
+    #aws_lb.ext_lb
+  #]
+#
+  #alias {
+    #name                   = aws_lb.ext_lb.dns_name
+    #zone_id                = aws_lb.ext_lb.zone_id
+    #evaluate_target_health = false
+  #}
+#}
 
 #----- Set default SSH key pair -----
 
@@ -439,8 +439,6 @@ module "okd" {
   vpc_subnet        = [aws_subnet.az1_subnet.id]
   private_domain    = data.aws_route53_zone.private.name
   private_domain_id = data.aws_route53_zone.private.zone_id
-  public_domain     = data.aws_route53_zone.public.name
-  public_domain_id  = data.aws_route53_zone.public.zone_id
   cluster_name      = var.cluster_name
   okd_name          = data.external.okd_name.result["name"]
   int_tg_22623      = aws_lb_target_group.int_tg_22623.arn

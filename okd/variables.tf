@@ -38,12 +38,6 @@ variable "private_domain" {
 variable "private_domain_id" {
 }
 
-variable "public_domain" {
-}
-
-variable "public_domain_id" {
-}
-
 variable "cluster_name" {
 }
 
