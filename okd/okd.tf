@@ -11,6 +11,11 @@ data "aws_ami" "fcos_ami" {
     name   = "description"
     values = ["Fedora CoreOS stable*"]
   }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 }
 
 # Route53
