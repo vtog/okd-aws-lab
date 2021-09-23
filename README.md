@@ -12,9 +12,9 @@ I'm assuming Linux client (Required: awscli, jq, terraform)
      - "baseDomain" in ./okd/ignition/install-config.yaml
   6. Download latest okd "client & "install" from github https://github.com/openshift/okd/releases
      - For corp account use "4.7.0-0.okd-2021-05-22-050008", newer version don't like session tokens.
-  7. Untar both files in root of clone repo
+  7. Untar both files in root of cloned repo
   8. Move "oc" & "kubectl" to "/usr/local/bin"
-  9.  Run "./scripts/deploy_okd.sh"
+  9.  Run "./scripts/deploy_okd.sh" (may need to insall libvirt-clients)
   10. Run "terraform init --upgrade"
   11. Run "terraform validate" #validates code
   12. Run "terraform plan" #validates AWS connectivity and object createion
